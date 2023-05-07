@@ -1,5 +1,13 @@
 #include <array>
 
+//TODO:
+//Добавить поля P и F
+//реализовать:
+//set_P
+//set_F
+//get_x
+//get_y
+
 class Memory final{
 	using arifmetic_type =  double;
 	std::array<arifmetic_type, 16> regs_;

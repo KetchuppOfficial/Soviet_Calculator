@@ -1,48 +1,10 @@
+#ifndef COMMANDS_HPP
+#define COMMANDS_HPP
+
 #include "memory.hpp"
 
 namespace ct
 {
-
-struct Button {};
-
-struct Digit : public Button
-{
-    double digit_;
-};
-
-enum class Buttons
-{
-    zero,
-    one,
-    two, 
-    three, 
-    four,
-    five,
-    six,
-    seven,
-    eight,
-    nine,
-    comma,
-    negate,
-    input_programm, //ВП
-    F,
-    div,
-    minus,
-    plus,
-    multiple,
-    swap_x_y,
-    up_arrow, //стрелочка (in reg Y)
-    clear,
-    P,
-    pow,
-    unconditional_jump, // БП
-    subprogramm, // ПП/Т
-    start_stop, // СТ
-    reset_address, // ВО
-    step_left,
-    step_right,
-    on_off
-};
 
 //TODO: numbers
 
@@ -131,3 +93,4 @@ struct Sqrt_instruction : public Instruction //+++
     void execute () override;
 };
 
+#endif

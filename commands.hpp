@@ -8,89 +8,186 @@ namespace ct
 
 //TODO: numbers
 
+const double NUMBER_PI = 3.14159265359;
+
 struct Instruction 
 {
-    virtual void execute (Memory& memory) = 0;
+    virtual void execute(Memory& memory) = 0;
 };
 
-struct Plus_instruction : public Instruction //+++
+struct Plus : public Instruction 
 {
-    void execute () override;
+    void execute(Memory& memory) override;
 };
 
-struct Minus_instruction : public Instruction //+++
+struct Minus : public Instruction 
 {
-    void execute () override;
+    void execute(Memory& memory) override;
 };
 
-struct Mult_instruction : public Instruction //+++
+struct Mult : public Instruction 
 {
-    void execute () override;
+    void execute(Memory& memory) override;
 };
 
-struct Div_instruction : public Instruction //+++
+struct Div : public Instruction 
 {
-    void execute () override;
+    void execute(Memory& memory) override;
 };
 
-struct Pow_instruction : public Instruction //+++
+struct Pow : public Instruction 
 {
-    void execute () override;
+    void execute(Memory& memory) override;
 };
 
-struct Swap_x_y_instruction : public Instruction //+++ 
+struct Swap_x_y : public Instruction  
 {
-    void execute () override;
+    void execute(Memory& memory) override;
 };
 
-struct Up_arrow_instruction : public Instruction //+++ 
+struct Up_arrow : public Instruction  
 {
-    void execute () override;
+    void execute(Memory& memory) override;
 };
 
-struct Clear_instruction : public Instruction //+++ 
+struct Clear : public Instruction  
 {
-    void execute () override;
+    void execute(Memory& memory) override;
 };
 
-struct Negate_instruction : public Instruction //+++ 
+struct Negate : public Instruction  
 {
-    void execute () override;
+    void execute(Memory& memory) override;
 };
 
-struct P_instruction : public Instruction //+++ 
+struct set_P : public Instruction  
 {
-    void execute () override;
+    void execute(Memory& memory) override;
 };
 
-struct F_instruction : public Instruction //+++ 
+struct set_F : public Instruction  
 {
-    void execute () override;
+    void execute(Memory& memory) override;
 };
 
-struct Step_left_instruction : public Instruction //+++ 
+struct Step_left : public Instruction  
 {
-    void execute () override;
+    void execute(Memory& memory) override;
 };
 
-struct Step_right_instruction : public Instruction //+++ 
+struct Step_right : public Instruction  
 {
-    void execute () override;
+    void execute(Memory& memory) override;
 };
 
-struct Reverse_instruction : public Instruction //+++ 
+struct Reverse : public Instruction  
 {
-    void execute () override;
+    void execute(Memory& memory) override;
 };
 
-struct Squaring_instruction : public Instruction //+++ 
+struct Squaring : public Instruction  
 {
-    void execute () override;
+    void execute(Memory& memory) override;
 };
 
-struct Sqrt_instruction : public Instruction //+++ 
+struct Sqrt : public Instruction  
 {
-    void execute () override;
+    void execute(Memory& memory) override;
+};
+
+struct Nop : public Instruction // 
+{
+    void execute(Memory& memory) override;
+};
+
+struct More_equal : public Instruction  //
+{
+    void execute(Memory& memory) override;
+};
+
+struct Equal : public Instruction  //
+{
+    void execute(Memory& memory) override;
+};
+
+struct Not_equal : public Instruction  //
+{
+    void execute(Memory& memory) override;
+};
+
+struct Less : public Instruction  //
+{
+    void execute(Memory& memory) override;
+};
+
+struct P_work : public Instruction // (PP) 
+{
+    void execute(Memory& memory) override;
+};
+
+struct P_prog : public Instruction  // (PП)
+{
+    void execute(Memory& memory) override;
+};
+
+struct Logariphm : public Instruction  
+{
+    void execute(Memory& memory) override;
+};
+
+struct Pi : public Instruction  
+{
+    void execute(Memory& memory) override;
+};
+
+struct Sin : public Instruction  
+{
+    void execute(Memory& memory) override;
+};
+
+struct Cos : public Instruction  
+{
+    void execute(Memory& memory) override;
+};
+
+struct Exponent : public Instruction  
+{
+    void execute(Memory& memory) override;
+};
+
+struct Return_clean : public Instruction  // (В/О)
+{
+    void execute(Memory& memory) override;
+};
+
+struct Stop_run : public Instruction  // (С/П)
+{
+    void execute(Memory& memory) override;
+};
+
+struct Jmp : public Instruction  // (БП)
+{
+    void execute(Memory& memory) override;
+};
+
+struct Subprog_step_run_in_work_mode : public Instruction  // (ПП/Т)
+{
+    void execute(Memory& memory) override;
+};
+
+struct Insert_exp : public Instruction  // (ВП)
+{
+    void execute(Memory& memory) override;
+};
+
+struct Comma : public Instruction  // (,)
+{
+    void execute(Memory& memory) override;
+};
+
+struct Power : public Instruction  // 
+{
+    void execute(Memory& memory) override;
 };
 
 #endif

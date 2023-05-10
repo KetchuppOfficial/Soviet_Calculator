@@ -5,93 +5,118 @@
 namespace ct
 {
 
-void Plus_instruction::execute(Memory& memory)
+void Plus::execute(Memory& memory)
 {
     memory.set_x(memory.get_x() + memory.get_y());
 }
 
-void Minus_instruction::execute(Memory& memory)
+void Minus::execute(Memory& memory)
 {
     memory.set_x(memory.get_y() - memory.get_x());
 }
 
-void Mult_instruction::execute(Memory& memory)
+void Mult::execute(Memory& memory)
 {
     memory.set_x(memory.get_y() * memory.get_x());
 }
 
-void Div_instruction::execute(Memory& memory)
+void Div::execute(Memory& memory)
 {
     memory.set_x(memory.get_y() / memory.get_x());
 }
 
-void Pow_instruction::execute(Memory& memory)
+void Pow::execute(Memory& memory)
 {
     memory.set_x(pow(memory.get_x(), memory.get_y()));
 }
 
-void Swap_x_y_instruction::execute(Memory& memory)
+void Swap_x_y::execute(Memory& memory)
 {
     memory.swap_xy();
 }
 
-void Up_arrow_instruction::execute(Memory& memory)
+void Up_arrow::execute(Memory& memory)
 {
     memory.set_y(memory.get_x());
 }
 
-void Clear_instruction::execute(Memory& memory)
+void Clear::execute(Memory& memory)
 {
     memory.reset_x();
 }
 
-void Negate_instruction::execute(Memory& memory)
+void Negate::execute(Memory& memory)
 {
     memory.negate_x();
 }
 
-void P_instruction::execute(Memory& memory)
+void set_P::execute(Memory& memory)
 {
     memory.set_P();
 }
 
-void F_instruction::execute(Memory& memory)
+void set_F::execute(Memory& memory)
 {
     memory.set_F();
 }
 
-void Step_left_instruction::execute(Memory& memory)
+void Step_left::execute(Memory& memory)
 {
     memory.left_rotate();
 }
 
-void Step_right_instruction::execute(Memory& memory)
+void Step_right::execute(Memory& memory)
 {
     memory.right_rotate();
 }
 
-void Reverse_instruction::execute(Memory& memory)
+void Reverse::execute(Memory& memory)
 {
-    double x = memory.get_x();
+    auto x = memory.get_x();
     if (!x)
     {
         memory.set_x(1 / x);
     }
 }
 
-void Squaring_instruction::execute(Memory& memory)
+void Squaring::execute(Memory& memory)
 {
-    double x = memory.get_x();
+    auto x = memory.get_x();
     memory.set_x(x * x);
 }
 
-void Sqrt_instruction::execute(Memory& memory)
+void Sqrt::execute(Memory& memory)
 {
-    double x = memory.get_x();
+    auto x = memory.get_x();
     if (x > 0)
     {
-        memory.set_x(sqrt(x));
+        memory.set_x(std::sqrt(x));
     }
 }
 
+void Logariphm::execute(Memory& memory)
+{
+    auto x = memory.get_x();
+    memory.set_x(std::log(x));
+}
+
+void Sin::execute(Memory& memory)
+{
+    auto x = memory.get_x();
+    memory.set_x(std::sin(x));
+}
+
+void Cos::execute(Memory& memory)
+{
+    auto x = memory.get_x();
+    memory.set_x(std::cos(x));
+}
+
+void Exponent::execute(Memory& memory)
+{
+    auto x = memory.get_x();
+    memory.set_x(std::exp(x));
+}
+
 } //namecpace ct
+

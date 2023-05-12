@@ -60,37 +60,39 @@ std::string dec_to_six (int a);
 
 //Индексы активных виждетов для связи с обработчиком,  событием и функцией
 //все эти номера будут согласованы с теми, кто пишет мне обработчик
-const int ID_BUT_PLUS = 1001;
-const int ID_BUT_MINUS = 1002;
-const int ID_BUT_MULT = 1003;
-const int ID_BUT_DELEN = 1004;
-const int ID_BUT_SWAP = 1005;
-const int ID_BUT_ARROWUP = 1006;
-const int ID_BUT_SIGN = 1007;
-const int ID_BUT_VP = 1008;
-const int ID_BUT_F = 1009;
-const int ID_BUT_NULL = 1010;
-const int ID_BUT_ONE = 1011;
-const int ID_BUT_TWO = 1012;
-const int ID_BUT_THREE = 1013;
-const int ID_BUT_FOUR = 1014;
-const int ID_BUT_FIVE = 1015;
-const int ID_BUT_SIX = 1016;
-const int ID_BUT_SEVEN = 1017;
-const int ID_BUT_EIGHT = 1018;
-const int ID_BUT_NINE = 1019;
-const int ID_BUT_POINT = 1020;
-const int ID_BUT_LSTEP = 1021;
-const int ID_BUT_RSTEP = 1022;
-const int ID_BUT_VO = 1023;
-const int ID_BUT_SP = 1024;
-const int ID_BUT_P = 1025;
-const int ID_BUT_DEG = 1026;
-const int ID_BUT_BP = 1027;
-const int ID_BUT_PP = 1028;
-const int ID_BUT_CX = 1029;
-const int ID_SCREEN = 1030;
-const int ID_BUT_TURN = 1031;
+enum BUTTONS_ids {
+    ID_BUT_PLUS = 1001,
+    ID_BUT_MINUS,
+    ID_BUT_MULT,
+    ID_BUT_DELEN,
+    ID_BUT_SWAP,
+    ID_BUT_ARROWUP,
+    ID_BUT_SIGN,
+    ID_BUT_VP,
+    ID_BUT_F,
+    ID_BUT_NULL,
+    ID_BUT_ONE,
+    ID_BUT_TWO,
+    ID_BUT_THREE,
+    ID_BUT_FOUR,
+    ID_BUT_FIVE,
+    ID_BUT_SIX,
+    ID_BUT_SEVEN,
+    ID_BUT_EIGHT,
+    ID_BUT_NINE,
+    ID_BUT_POINT,
+    ID_BUT_LSTEP,
+    ID_BUT_RSTEP,
+    ID_BUT_VO,
+    ID_BUT_SP,
+    ID_BUT_P,
+    ID_BUT_DEG,
+    ID_BUT_BP,
+    ID_BUT_PP,
+    ID_BUT_CX,
+    ID_SCREEN,
+    ID_BUT_TURN,
+};
 
 BackPanel::BackPanel (wxFrame *parent, wxString file, wxBitmapType format, wxString file2):wxPanel(parent) {
     //Загрузка файла с изображением. Хорошо бы еще проверить на загрузилось или нет

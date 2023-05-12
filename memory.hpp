@@ -3,6 +3,9 @@
 
 #include <array>
 
+namespace ussr
+{
+
 class Memory final
 {
 	using arifmetic_type = double;
@@ -42,5 +45,7 @@ public:
 };
 
 void mem_print (const Memory& memory);
+
+} // namespace ussr
 
 #endif

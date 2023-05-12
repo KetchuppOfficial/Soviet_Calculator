@@ -2,7 +2,7 @@
 
 #include "commands.hpp"
 
-namespace ct {
+namespace ussr {
 
 void Plus::execute(Memory &memory)
 {
@@ -115,4 +115,4 @@ void Exponent::execute(Memory &memory)
     memory.set_x(std::exp(x));
 }
 
-}  // namespace ct
+}  // namespace ussr 

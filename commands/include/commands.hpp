@@ -3,7 +3,7 @@
 
 #include "memory.hpp"
 
-namespace ct {
+namespace ussr {
 
 // TODO: numbers
 
@@ -181,5 +181,6 @@ struct Power
     void execute(Memory &memory) override;
 };
 
-}  // namespace ct
+}  // namespace ussr
+
 #endif

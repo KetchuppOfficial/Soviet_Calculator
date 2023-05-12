@@ -1,0 +1,8 @@
+all: calc
+
+calc: Interface_raw.o impl_app.o
+	g++ Interface_raw.o impl_app.o `wx-config --cxxflags --libs` -std=c++20 -o calc
+Interface_raw.o:		
+	g++ -c ./src/Interface_raw.cpp ./include/Interface_raw.hpp `wx-config --cxxflags --libs` -std=c++20
+impl_app.o:
+	g++ -c ./src/Interface_raw.cpp ./src/impl_app.cpp ./include/Interface_raw.hpp `wx-config --cxxflags --libs` -std=c++20

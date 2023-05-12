@@ -6,26 +6,14 @@
 #include <iostream>
 #include <cstdlib>
 
-// тут добавилась только лишь обработка нажатий мыши
-//   Класс для фоновой картинки и дугого рисования
 class BackPanel:public wxPanel {
-    //  Изображение для фона
     wxBitmap image;
     wxBitmap image2;
 public:
-    //wxTextCtrl *screen_text; //можно ли этот текст привязать ко всему фрейму? 
     BackPanel (wxFrame *parent, wxString file, wxBitmapType format, wxString file2);
-    // Все рисование происходит когда происходит событие перерисовки
     void paintEvent (wxPaintEvent &evt);
-    void paintEvent2 (wxPaintEvent &evt);
-    //  Эта функция собственно все и будет рисовать
     void paintBack ();
-    void paintBack2 ();
-    //  wxDC - абстрактный класс для рисования. У него есть реальные наследники:
-    // wxPaintDC,  wxClientDC и wxMemoryDC
     void setImage (wxDC &dc);
-    void setImage2 (wxDC &dc);
-    //void OnMouse (wxMouseEvent &event); // новая функция по сравнению с fon_image
 };
 
 //  Основное окно
@@ -37,34 +25,28 @@ class CalcFrame:public wxFrame {
   назначение заключается в том, чтобы выровнять компоненты в одной строке - один
   рядом с другим - горизонтально или вертикально.
     */
-    wxBoxSizer *main_sizer; //делаем ещё 2 сайзера для размещения панели с калькулятором и панели с памятью
+    wxBoxSizer *main_sizer; //sizer for panel placement
     wxTextCtrl *screen_text;
     wxTextCtrl *prog_number [6][6];
     wxTextCtrl *prog_code [6][6];
-    wxTextCtrl *reg_value [8]; //711, 451, 771
+    wxTextCtrl *reg_value [8];
     wxTextCtrl *rotate_reg_value [6]; 
     BackPanel *drawPane;
     wxButton* turn_button;
     wxBitmapButton* calc_button [31];
     static bool turn_pressed;
-    // Примеры кнопок с картинками
-    //wxBitmapButton *plus_button; //здесь возможно стоит создать массив указателей
-    wxTextCtrl *number_scr; // текст для нужд вывода
-    wxTimer *tm; // обэект таймер, зачем он нужен пойму позже
+    wxTextCtrl *number_scr; 
 public:
     CalcFrame (const wxString &title);
     ~CalcFrame ();
-    //  функция при нажатии на кнопку +
-    void pressOne (wxCommandEvent &event);
-    //  функция при нажатии на кнопку -
-    void pressSec (wxCommandEvent &event);
     void ButtonClick (wxCommandEvent &event);
     void Click_turn (wxCommandEvent &event);
     void null_everything ();
     void init_everything ();
     void cursor_set (int cursor_position);
+    void screen_set_values ();
     struct Data {
-        std::string prog_code_val [6][6];//можно и в интах
+        std::string prog_code_val [6][6];
         std::string reg_value_val [8];
         std::string rotate_reg_value_val [6];
         std::string text_screen_val;
@@ -111,27 +93,16 @@ const int ID_SCREEN = 1030;
 const int ID_BUT_TURN = 1031;
 
 BackPanel::BackPanel (wxFrame *parent, wxString file, wxBitmapType format, wxString file2):wxPanel(parent) {
-    //Загрузка файла с изображением. Хорошо бы еще проверить на пердмет
-    //успешно или нет
+    //Загрузка файла с изображением. Хорошо бы еще проверить на загрузилось или нет
     image.LoadFile (file, format);
     image2.LoadFile (file2, format);
-    //Связывание функции paintEvent событием перерисовки панели
     Connect(wxEVT_PAINT, wxPaintEventHandler(BackPanel::paintEvent));
-    //Связываем событие мыши (нажатие на левую кнопку) с функцией OnMouse()
-    //Так как мы связываем ее только в паненли BackPanel,  то события мыши будут перехватываться
-    //только в этой панели
-    //Connect(wxEVT_LEFT_DOWN, wxMouseEventHandler(BackPanel::OnMouse));
 }
 
 void BackPanel::paintEvent(wxPaintEvent &evt) {
-    // wxPaintDC - наследник wxDC. Самый простой планшет лоя рисования
     wxPaintDC dc (this);
-    //  Загрузка изображения на планшет (реализована ниже)
     setImage(dc);
 }
-
-//  Можно и так. wxClientDC - позволяет оставлять рисовать на нем мышкой,
-// например
 
 void BackPanel::paintBack () {
     // depending on your system you may need to look at double-buffered dcs
@@ -140,25 +111,14 @@ void BackPanel::paintBack () {
 }
 
 void BackPanel::setImage (wxDC &dc) {
-    //  Устанавливаем изображение на планшет
-    dc.DrawBitmap(image, 0, 0, false);
+    dc.DrawBitmap (image, 0, 0, false);
     dc.DrawBitmap (image2, 630, 450, false);
 }
-
-/*void BackPanel::OnMouse (wxMouseEvent &event) {
-    wxString answ;
-    int x = event.GetX();
-    int y = event.GetY();
-    answ = answ.Format (wxT("(%d, %d)"), x, y);
-    wxMessageBox(answ);
-};*/
 
 CalcFrame::CalcFrame (const wxString &title):wxFrame (NULL, wxID_ANY, title, wxPoint(50, 50), wxSize(800, 1000)) {
     //  Включаем обработчик для всех типов изображений
     wxInitAllImageHandlers ();
-    //  Создаем sizer для размещения планшета wxPanelDC
     main_sizer = new wxBoxSizer (wxHORIZONTAL);
-    //  Создаем планшет,  привязываем его к текущему фрейму
     drawPane = new BackPanel (this, wxT("Calc_pict/calcApp.png"), wxBITMAP_TYPE_PNG, wxT("Calc_pict/mem.png"));
     //  Добавляем к sizer планшет
     main_sizer->Add (drawPane, 1, wxEXPAND | wxRIGHT | wxBOTTOM, 0);
@@ -166,11 +126,11 @@ CalcFrame::CalcFrame (const wxString &title):wxFrame (NULL, wxID_ANY, title, wxP
     SetSizer(main_sizer);
 
     screen_text = new wxTextCtrl (this, ID_SCREEN, wxT(""), wxPoint(57, 20), wxSize(492, 90), wxTE_LEFT | wxTE_READONLY);
-	//Устанавливаем размер шрифта
+	//text size
 	screen_text->SetFont(wxFontInfo(40));
-	//Устанавливаем цвет фона
+	//Background colour
 	screen_text->SetBackgroundColour(*wxBLACK);
-	//Устанавливаем цвет текста
+	//Text colour
 	screen_text->SetForegroundColour(*wxRED);
 
     turn_button = new wxButton (this, ID_BUT_TURN, wxT("Turn"), wxPoint (36, 195));
@@ -303,31 +263,27 @@ CalcFrame::CalcFrame (const wxString &title):wxFrame (NULL, wxID_ANY, title, wxP
 
     new wxBitmapButton (drawPane, ID_BUT_CX, wxBitmap (wxImage (wxT ("Calc_pict/cx.png"), wxBITMAP_TYPE_PNG).Scale (68, 68)), wxPoint (36, 296));
     Connect (ID_BUT_CX, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler (CalcFrame::ButtonClick));
-    Maximize (true);
-    Centre(); //окно раскроется в центре экрана
+    Maximize (true); //full screen
+    Centre(); //center
 };
 
 bool CalcFrame::turn_pressed = false;
 
-
 CalcFrame::~CalcFrame() {
-    //wxMessageBox(wxT("Деструктор работает"));
-    //  Убираем панель
     for (int i = 0; i < 31; i++) {
         delete calc_button [i];
     }
     drawPane->Destroy();
-    //  Закрываем окно
     Close (true);
 };
 
-//  Функции при нажатии на кнопки
 void CalcFrame::ButtonClick (wxCommandEvent &event) { //пока что обработчик нажатия делает разные вещи, чтобы мне разобраться во всём
     if (turn_pressed == false) {
         return;
     }
     int ID = event.GetId ();
     //back_end.get_button_num (ID);
+    screen_set_values ();
     wxString IDnum = wxT("Button pressed ") + wxString::Format(wxT("%d"), ID);
     wxMessageBox(IDnum);
     screen_text->ChangeValue (IDnum);
@@ -348,7 +304,9 @@ void CalcFrame::Click_turn (wxCommandEvent &event) {
         turn_pressed = true;
         return;
     }
-    if (turn_pressed == true) { //здесь нужно скзаать, чтобы всё занулили
+    if (turn_pressed == true) { //здесь нужно скзать, чтобы всё занулили
+        int ID = event.GetId ();
+        //back_end.get_button_num (ID);
         null_everything ();
         turn_button->SetForegroundColour (*wxRED);
         turn_button->SetBackgroundColour (*wxBLACK);
@@ -417,19 +375,20 @@ void CalcFrame::cursor_set (int pos) {
     }
 }
 
+void CalcFrame::screen_set_values () {//a.f.k.
+    return;
+}
+
 class CalcApp:public wxApp {
     CalcFrame *frame;
 public:
     bool OnInit() {
         frame = new CalcFrame(wxT("БК-21"));
         frame->Show();
-        //Главное окно долно быть сверху и будет убираться последним
         SetTopWindow (frame);
         return true;
     }
-
     int OnExit() {
-        //wxMessageBox(wxT("Все удалаяем"));
         return 0;
     }
 };

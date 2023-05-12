@@ -46,7 +46,7 @@ std::string dec_to_six (int a);
 //Индексы активных виждетов для связи с обработчиком,  событием и функцией
 //все эти номера будут согласованы с теми, кто пишет мне обработчик
 enum BUTTONS_ids {
-    ID_BUT_PLUS = 1002,
+    ID_BUT_PLUS = 1001,
     ID_BUT_MINUS,
     ID_BUT_MULT,
     ID_BUT_DELEN,

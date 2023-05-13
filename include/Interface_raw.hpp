@@ -5,6 +5,9 @@
 #include <cstring>
 #include <iostream>
 #include <cstdlib>
+#include "memory.hpp"
+
+namespace ussr {
 
 class BackPanel:public wxPanel {
     wxBitmap image;
@@ -17,17 +20,14 @@ public:
 };
 
 class CalcFrame:public wxFrame {//main frame
-    //  Здесь используются указатели, для того, чтобы wx мог их потом спокойно
-    // удалить. Указатели,  объявленные в функциях wx не удалаяет сам
-    wxBoxSizer *main_sizer; //sizer for panel placement
+    wxBoxSizer *main_sizer; 
     wxTextCtrl *screen_text;
-    wxTextCtrl *prog_number [6][6];
-    wxTextCtrl *prog_code [6][6];
-    wxTextCtrl *reg_value [8];
-    wxTextCtrl *rotate_reg_value [6]; 
+    std::array <wxTextCtrl*, 36> prog_number;
+    std::array <wxTextCtrl*, 36> prog_code;
+    std::array <wxTextCtrl*, 14> reg_value;
     BackPanel *drawPane;
     wxButton* turn_button;
-    wxBitmapButton* calc_button [31];
+    std::array <wxBitmapButton*, 31> Calc_buttons;
     bool turn_pressed = false;
     wxTextCtrl *number_scr; 
 public:
@@ -35,16 +35,16 @@ public:
     ~CalcFrame ();
     void ButtonClick (wxCommandEvent &event);
     void Click_turn (wxCommandEvent &event);
+    //void Create_button (BackPanel drawPane, const int button_id, const std::string pict_name, const int x, const int y, int n);
     void null_everything ();
     void init_everything ();
     void cursor_set (int cursor_position);
     void screen_set_values ();
+    void cursor_delete_null ();
+    std::string value_convert ();
+    std::string dec_to_six (int a);
 };
 
-std::string dec_to_six (int a);
-
-//Индексы активных виждетов для связи с обработчиком,  событием и функцией
-//все эти номера будут согласованы с теми, кто пишет мне обработчик
 enum BUTTONS_ids {
     ID_BUT_PLUS = 1001,
     ID_BUT_MINUS,
@@ -79,16 +79,17 @@ enum BUTTONS_ids {
     ID_BUT_TURN,
 };
 
+/*std::array <const wxString, 3> pict_names {
+    "Calc_pict/plus.png",
+    "Calc_pict/minus.png", 
+    "Calc_pict/mult.png"
+};*/
+
 class CalcApp:public wxApp {//dont understand how this works
     CalcFrame *frame;
 public:
-    bool OnInit() {
-        frame = new CalcFrame(wxT("БК-21"));
-        frame->Show();
-        SetTopWindow (frame);
-        return true;
-    }
-    int OnExit() {
-        return 0;
-    }
+    bool OnInit(); 
+    int OnExit();
 };
+
+} //namespace end

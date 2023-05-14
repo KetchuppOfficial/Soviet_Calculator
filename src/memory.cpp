@@ -1,9 +1,6 @@
 #include <iostream>
 #include "memory.hpp"
 
-namespace ussr
-{
-
 typename Memory::arifmetic_type Memory::operator[](std::size_t i) const
 {
     return regs_[i];
@@ -11,12 +8,17 @@ typename Memory::arifmetic_type Memory::operator[](std::size_t i) const
 
 void Memory::negate_x()
 {
-	x_reg_ = -x_reg_;
+	 x_reg_ = -x_reg_;
 }
 
 void Memory::reset_x () 
 { 
 	x_reg_ = 0; 
+}
+
+void Memory::set_y_from_x()
+{
+	y_reg_ = x_reg_;
 }
 
 void Memory::swap_xy () 
@@ -44,29 +46,9 @@ Memory::arifmetic_type Memory::get_y () const
 	return y_reg_; 
 }
 
-void Memory::set_P_flag (bool val) 
-{ 
-	P_flag_ = val; 
-}
-
-bool Memory::get_P_flag () const
-{ 
-	return P_flag_; 
-}
-
-void Memory::set_F_flag(bool val) 
-{ 
-	F_flag_ = val; 
-}
-
-bool Memory::get_F_flag() const 
-{ 
-	return F_flag_; 
-}
-
 void Memory::set_Pregs (std::size_t regnum, arifmetic_type val)
 {
-	regnum += 6;
+	regnum+=6;
     if ((regnum > 15) || (regnum < 8))
 		return;
     regs_[regnum] = val;
@@ -101,5 +83,3 @@ void mem_print(const Memory& memory)
 		std::cout << memory[i] << " "; 
 	std::cout << '\n';	
 }
-
-} // namespace ussr

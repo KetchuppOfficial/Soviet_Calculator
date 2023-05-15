@@ -1,5 +1,7 @@
 #include "calculator.hpp"
 
+#include <cmath>
+
 namespace ussr
 {
 

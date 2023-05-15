@@ -4,7 +4,6 @@
 #include <array>
 
 #include "memory.hpp"
-#include "commands.hpp"
 #include "interface_raw.hpp"
 
 namespace ussr
@@ -26,6 +25,15 @@ public:
     Soviet_Calculator ();
 
     void handle_button (BUTTONS_ids id);
+
+    bool get_P_flag();
+    bool get_F_flag();
+
+    void set_P_flag();
+    void set_F_flag();
+
+    void reset_P_flag ();
+    void reset_F_flag ();
 };
 
 } // namespace ussr

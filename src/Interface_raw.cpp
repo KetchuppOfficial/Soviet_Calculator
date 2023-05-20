@@ -1,30 +1,60 @@
 #include "../include/Interface_raw.hpp"
 
-using namespace ussr;
+#include <limits.h>
 
-BackPanel::BackPanel (wxFrame *parent, wxString file, wxBitmapType format, wxString file2):wxPanel(parent) {
+namespace ussr
+{
+
+namespace
+{
+
+std::string dec_to_six (unsigned a) { //mabye should add "0" before one symbol numbers
+    std::string number;
+    number.reserve (std::numeric_limits<decltype(a)>::digits);
+
+    while (a / 6 != 0) {
+        number += std::to_string (a % 6);
+        a = a / 6;
+    }
+
+    number += std::to_string (a);
+    std::reverse (number.begin (), number.end ());
+    
+    return number;
+}
+
+} // unnamed namespace
+
+BackPanel::BackPanel (wxFrame *parent, wxString file, wxBitmapType format, wxString file2)
+                     : wxPanel(parent)
+{
     image.LoadFile (file, format);
     image2.LoadFile (file2, format);
     Connect(wxEVT_PAINT, wxPaintEventHandler(BackPanel::paintEvent));
 }
 
-void BackPanel::paintEvent(wxPaintEvent &evt) {
+void BackPanel::paintEvent(wxPaintEvent &evt)
+{
     wxPaintDC dc (this);
     setImage(dc);
 }
 
-void BackPanel::paintBack () {
+void BackPanel::paintBack ()
+{
     // depending on your system you may need to look at double-buffered dcs
     wxClientDC dc(this);
     setImage(dc);
 }
 
-void BackPanel::setImage (wxDC &dc) {
+void BackPanel::setImage (wxDC &dc)
+{
     dc.DrawBitmap (image, 0, 0, false);
     dc.DrawBitmap (image2, 630, 450, false);
 }
 
-CalcFrame::CalcFrame (const wxString &title):wxFrame (NULL, wxID_ANY, title, wxPoint(50, 50), wxSize(800, 1000)) {
+CalcFrame::CalcFrame (const wxString &title)
+                     : wxFrame (nullptr, wxID_ANY, title, wxPoint(50, 50), wxSize(800, 1000))
+{
     wxInitAllImageHandlers ();
     main_sizer = new wxBoxSizer (wxHORIZONTAL);
     drawPane = new BackPanel (this, wxT("Calc_pict/calcApp.png"), wxBITMAP_TYPE_PNG, wxT("Calc_pict/mem.png"));
@@ -175,98 +205,97 @@ CalcFrame::CalcFrame (const wxString &title):wxFrame (NULL, wxID_ANY, title, wxP
     Centre(); //center
 };
 
-CalcFrame::~CalcFrame() {
+CalcFrame::~CalcFrame()
+{
     drawPane->Destroy();
     Close (true);
 };
 
-void CalcFrame::ButtonClick (wxCommandEvent &event) { //пока что обработчик нажатия делает разные вещи, чтобы мне разобраться во всём
-    if (turn_pressed == false) {
+void CalcFrame::ButtonClick (wxCommandEvent &event)
+{ //пока что обработчик нажатия делает разные вещи, чтобы мне разобраться во всём
+    if (turn_pressed == false)
         return;
-    }
-    int ID = event.GetId ();
+
+    auto ID = event.GetId ();
     //back_end.get_button_num (ID);
     wxString IDnum = wxT("Bttn pressed ") + wxString::Format(wxT("%d"), ID);
     screen_text->ChangeValue (IDnum);
     cursor_set (ID - 1000);
 }
 
-void CalcFrame::Click_turn (wxCommandEvent &event) {
-    if (turn_pressed == false) {
-        turn_button->SetForegroundColour (*wxBLACK);
-        turn_button->SetBackgroundColour (*wxRED);
-        init_everything ();
-        cursor_set (0);
-    }
-    if (turn_pressed == true) {
-        int ID = event.GetId ();//how not to comment this code
+void CalcFrame::Click_turn (wxCommandEvent &event)
+{
+    if (turn_pressed)
+    {
+        auto ID = event.GetId ();//how not to comment this code
         //back_end.get_button_num (ID);
         null_everything ();
         turn_button->SetForegroundColour (*wxRED);
         turn_button->SetBackgroundColour (*wxBLACK);
     }
+    else
+    {
+        turn_button->SetForegroundColour (*wxBLACK);
+        turn_button->SetBackgroundColour (*wxRED);
+        init_everything ();
+        cursor_set (0);
+    }
+
     turn_pressed = !turn_pressed;
 }
 
-void CalcFrame::null_everything () {
-    for (int i = 0; i < 36; i++) {
+void CalcFrame::null_everything ()
+{
+    for (auto i = 0; i < 36; i++)
         prog_code[i]->ChangeValue ("");
-    }
-    for (int i = 0; i < 14; i++) {
+
+    for (auto i = 0; i < 14; i++)
         reg_value[i]->ChangeValue ("00000000000");
-    }
+
     screen_text->Clear ();
     cursor_set (0);
     cursor_delete_null ();
+
     return;
 }
 
-void CalcFrame::init_everything () { //initialization at calc turning on
-    for (int i = 0; i < 6; i++) {
+void CalcFrame::init_everything () //initialization at calc turning on
+{
+    for (auto i = 0; i < 6; i++)
         prog_code[i]->Clear ();
-    }
-    for (int i = 0; i < 14; i++) {
+
+    for (auto i = 0; i < 14; i++)
         reg_value[i]->ChangeValue ("0.");
-    }
+
     screen_text->ChangeValue ("0.");
     screen_text->ChangeValue ("0.");
+
     return;
 }
 
-std::string CalcFrame::dec_to_six (int a) { //mabye should add "0" before one symbol numbers
-    std::string number;
-    while (a / 6 != 0) {
-        number += std::to_string (a % 6);
-        a = a / 6;
-    }
-    number += std::to_string (a);
-    std::reverse (number.begin (), number.end ());
-    return number;
-}
-
-void CalcFrame::cursor_set (int pos) {//get number of current position, makes it's Background blue
+void CalcFrame::cursor_set (int pos) //get number of current position, makes it's Background blue
+{
     prog_number[pos]->SetBackgroundColour (*wxWHITE);
     prog_code[pos]->SetBackgroundColour (*wxWHITE);
-    for (int i = 0; i < 36; i++) {
-        if (i != pos) {
-            prog_number [i]->SetBackgroundColour (*wxBLACK);
-            prog_code [i]->SetBackgroundColour (*wxBLACK);
+
+    for (auto i = 0; i < 36; i++)
+    {
+        if (i != pos)
+        {
+            prog_number[i]->SetBackgroundColour (*wxBLACK);
+            prog_code[i]->SetBackgroundColour (*wxBLACK);
         }
     }
 }
 
-void CalcFrame::cursor_delete_null () {
+void CalcFrame::cursor_delete_null ()
+{
     prog_number[0]->SetBackgroundColour (*wxBLACK);
     prog_code[0]->SetBackgroundColour (*wxBLACK);
 }
 
 void CalcFrame::screen_set_values () {//for tests, has no sence
     return;
-}
-
-std::string CalcFrame::value_convert () {//a.f.k.
-    std::string a = "0";
-    return a;
 }
 
 bool CalcApp::OnInit() {
@@ -279,3 +308,5 @@ bool CalcApp::OnInit() {
 int CalcApp::OnExit () {
     return 0;
 }
+
+} // namespace ussr

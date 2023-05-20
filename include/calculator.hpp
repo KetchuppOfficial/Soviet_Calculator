@@ -4,7 +4,7 @@
 #include <array>
 
 #include "memory.hpp"
-#include "interface_raw.hpp"
+#include "buttons.hpp"
 
 namespace ussr
 {
@@ -24,7 +24,7 @@ public:
 
     Soviet_Calculator ();
 
-    void handle_button (BUTTONS_ids id);
+    void handle_button (Button_ID id);
 
     bool get_P_flag();
     bool get_F_flag();

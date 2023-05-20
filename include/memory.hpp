@@ -3,6 +3,9 @@
 
 #include <array>
 
+namespace ussr
+{
+
 class Memory final
 {
 	using arifmetic_type = double;
@@ -11,6 +14,7 @@ class Memory final
 	arifmetic_type &y_reg_ = regs_[7];
 
 public:
+
 	arifmetic_type operator [] (std::size_t i) const;
 	void negate_x ();
 	void reset_x ();
@@ -33,5 +37,7 @@ public:
 };
 
 void mem_print (const Memory& memory);
+
+} // namespace ussr
 
 #endif

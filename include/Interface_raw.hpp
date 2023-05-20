@@ -1,17 +1,23 @@
+#include <array>
+#include <utility>
+
 #include <wx/wx.h>
 #include <wx/sizer.h>
 #include <wx/defs.h>
 #include <wx/string.h>
-#include <array>
 
 #include "calculator.hpp"
 
-namespace ussr {
+namespace ussr
+{
 
-class BackPanel:public wxPanel {
+class BackPanel : public wxPanel
+{
     wxBitmap image;
     wxBitmap image2;
+
 public:
+
     BackPanel (wxFrame *parent, wxString file, wxBitmapType format, wxString file2);
     void paintEvent (wxPaintEvent &evt);
     void paintBack ();
@@ -20,8 +26,9 @@ public:
 
 class CalcFrame : public wxFrame
 {
-    std::array <wxTextCtrl*, 36> prog_number;
-    std::array <wxTextCtrl*, 36> prog_code;
+    std::array <std::pair<wxTextCtrl *, wxTextCtrl *>, 36> prog_;
+    // first subarray used to be called prog_number
+    // second subarray used to be called prog_code
     std::array <wxTextCtrl*, 14> reg_value;
     std::array <wxBitmapButton*, 31> Calc_buttons;
 
@@ -44,7 +51,6 @@ public:
     void null_everything ();
     void init_everything ();
     void cursor_set (int cursor_position);
-    void screen_set_values ();
     void cursor_delete_null ();
 };
 

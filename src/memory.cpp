@@ -1,6 +1,9 @@
 #include <iostream>
 #include "memory.hpp"
 
+namespace ussr
+{
+
 typename Memory::arifmetic_type Memory::operator[](std::size_t i) const
 {
     return regs_[i];
@@ -83,3 +86,5 @@ void mem_print(const Memory& memory)
 		std::cout << memory[i] << " "; 
 	std::cout << '\n';	
 }
+
+} // namespace ussr

@@ -18,7 +18,7 @@ class Soviet_Calculator final
     bool P_flag_ = false;
 	bool F_flag_ = false;
 
-    std::array<handler, ID_END_ - ID_BEGIN_ - 1> handlers_;
+    std::array<handler, Button_ID::END_ - Button_ID::BEGIN_ - 11> handlers_;
 
 public:
 
@@ -34,6 +34,9 @@ public:
 
     void reset_P_flag ();
     void reset_F_flag ();
+
+    Memory &get_memory();
+    const Memory &get_memory() const;
 };
 
 } // namespace ussr

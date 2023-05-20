@@ -212,7 +212,7 @@ Soviet_Calculator::Soviet_Calculator ()
     handlers_[14] = input_exp;
 }
 
-Soviet_Calculator::handle_button (BUTTONS_ids id)
+Soviet_Calculator::handle_button (Button_ID id)
 {
     auto handler = handlers_[id];
     handler();

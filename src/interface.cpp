@@ -64,7 +64,7 @@ std::string dec_to_six (unsigned a)
     }
 
     number += std::to_string (a);
-    std::reverse (number.begin (), number.end ());
+    std::reverse (number.begin(), number.end());
     
     return number;
 }
@@ -110,7 +110,7 @@ void CalcFrame::init_prog_buttons ()
 void CalcFrame::init_reg_buttons ()
 {   
     auto i = 0;
-    for (auto &&reg : registers_)
+    for (auto &&reg : regs_)
     {
         wxPoint pt;
         wxSize size;
@@ -133,9 +133,7 @@ void CalcFrame::init_reg_buttons ()
 
         reg = new wxTextCtrl (this,
                               Button_ID::SCREEN,
-                              wxString{std::to_string(calc_.get_memory()[i])},
-                              pt,
-                              size,
+                              wxT(""), pt, size,
                               wxTE_READONLY | wxTE_CENTRE);
 
         set (reg, 16, *wxBLUE, wxColour{223, 136, 136});
@@ -149,34 +147,51 @@ void CalcFrame::init_calc_buttons ()
     for (auto &&button : buttons)
     {
         auto file_name = std::string{"images/"} + std::string{button.file};
-        calc_buttons_[i] = new wxBitmapButton (drawPane,
+        calc_buttons_[i] = new wxBitmapButton (background_,
                                                button.id,
                                                wxBitmap (wxImage (wxString{file_name}, wxBITMAP_TYPE_PNG).Scale (68, 68)),
                                                button.pos);
-        Connect (button.id, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler (CalcFrame::ButtonClick));
+        Connect (button.id, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler (CalcFrame::click));
         i++;
     }
 }
 
+void CalcFrame::init_digits ()
+{
+    auto i = 0;
+    for (auto &&digit : digits_)
+    {
+        digit = new wxTextCtrl (this,
+                                Button_ID::SCREEN, wxT(""),
+                                wxPoint(61 + i * 60, 30), wxSize(59, 67),
+                                wxTE_LEFT | wxTE_READONLY);
+        set (digit, 40, *wxRED, *wxBLACK);
+        i++;
+    }
+}
+
+void CalcFrame::init_power_button ()
+{
+    power_button_ = new wxButton (this, Button_ID::TURN, wxT("On"), wxPoint (36, 195));
+    set (power_button_, 20, *wxRED, *wxBLACK);
+    Connect (Button_ID::TURN, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler (CalcFrame::click_power_button));
+}
+
 CalcFrame::CalcFrame (const wxString &title)
                      : wxFrame (nullptr, wxID_ANY, title, wxPoint(50, 50), wxSize(800, 1000)),
-                       main_sizer{new wxBoxSizer (wxHORIZONTAL)}
+                       main_sizer_{new wxBoxSizer (wxHORIZONTAL)}
 {
     wxInitAllImageHandlers ();
-    drawPane = new BackPanel (this, wxT("images/calcApp.png"), wxT("images/mem.png"), wxBITMAP_TYPE_PNG);
-    main_sizer->Add (drawPane, 1, wxEXPAND | wxRIGHT | wxBOTTOM, 0);
-    SetSizer(main_sizer);
 
-    screen_text = new wxTextCtrl (this, Button_ID::SCREEN, wxT(""), wxPoint(57, 20), wxSize(492, 90), wxTE_LEFT | wxTE_READONLY);
-    set (screen_text, 40, *wxRED, *wxBLACK);
-
-    turn_button = new wxButton (this, Button_ID::TURN, wxT("On"), wxPoint (36, 195));
-    set (turn_button, 20, *wxRED, *wxBLACK);
-    Connect (Button_ID::TURN, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler (CalcFrame::Click_turn));
-
-    init_prog_buttons ();
-    init_reg_buttons ();
-    init_calc_buttons ();
+    background_ = new BackPanel (this, wxT("images/calcApp.png"), wxT("images/mem.png"), wxBITMAP_TYPE_PNG);
+    main_sizer_->Add (background_, 1, wxEXPAND | wxRIGHT | wxBOTTOM, 0);
+    SetSizer(main_sizer_);
+    
+    init_power_button();
+    init_prog_buttons();
+    init_reg_buttons();
+    init_calc_buttons();
+    init_digits();
 
     Maximize (true); //full screen
     Centre();
@@ -187,65 +202,82 @@ void CalcFrame::OnExit (wxCommandEvent &event)
     Close (true);
 };
 
-void CalcFrame::ButtonClick (wxCommandEvent &event)
+void CalcFrame::print_number ()
 {
-    if (turn_pressed == false)
+    auto num = std::to_string (calc_.get_memory().get_x());
+
+    auto n_symbs = num.find ('.') + calc_.get_comma_flag() + calc_.get_digits_after_comma();
+    if (n_symbs > digits_.size())
+        n_symbs = digits_.size();
+
+    for (auto rit = digits_.rbegin(), rend = digits_.rend(); rit != rend; ++rit)
+    {
+        if (n_symbs > 0)
+            (*rit)->ChangeValue (wxString{num[--n_symbs]});
+        else
+            (*rit)->ChangeValue ("0");
+    }
+}
+
+void CalcFrame::click (wxCommandEvent &event)
+{
+    if (power_on_ == false)
         return;
 
     auto ID = event.GetId ();
     calc_.handle_button (static_cast<Button_ID>(ID));
-    screen_text->ChangeValue (std::to_string (calc_.get_memory().get_x()));
+    print_number();
+    
+    #if 0
     cursor_set (ID - 1000);
+    #endif
 }
 
-void CalcFrame::Click_turn (wxCommandEvent &event)
+void CalcFrame::click_power_button (wxCommandEvent &event)
 {
-    if (turn_pressed)
+    if (power_on_)
     {
-        auto ID = event.GetId ();//how not to comment this code
-        //back_end.get_button_num (ID);
+        power_button_->SetForegroundColour (*wxRED);
+        power_button_->SetBackgroundColour (*wxBLACK);
         null_everything ();
-        turn_button->SetForegroundColour (*wxRED);
-        turn_button->SetBackgroundColour (*wxBLACK);
     }
     else
     {
-        turn_button->SetForegroundColour (*wxBLACK);
-        turn_button->SetBackgroundColour (*wxRED);
+        power_button_->SetForegroundColour (*wxBLACK);
+        power_button_->SetBackgroundColour (*wxRED);
         init_everything ();
-        cursor_set (0);
     }
 
-    turn_pressed = !turn_pressed;
+    power_on_ = !power_on_;
 }
 
 void CalcFrame::null_everything ()
 {
-    for (auto &&elem : prog_)
-        elem.second->ChangeValue ("");
+    std::for_each (prog_.begin(), prog_.end(),
+                   [](auto &&pair){ pair.second->ChangeValue (""); });
+    std::for_each (regs_.begin(), regs_.end(),
+                   [](auto &&reg){ reg->ChangeValue (""); });
+    std::for_each (digits_.begin(), digits_.end(),
+                   [](auto &&digit){ digit->Clear (); });
 
-    for (auto &&val : registers_)
-        val->ChangeValue ("00000000000");
-
-    screen_text->Clear ();
     cursor_set (0);
     cursor_delete_null ();
+    calc_.reset();
 }
 
-void CalcFrame::init_everything () //initialization at calc turning on
+void CalcFrame::init_everything ()
 {
-    // There is a possibility only first 6 elements have to be cleared
-    for (auto &&elem : prog_)
-        elem.second->Clear ();
+    std::for_each (prog_.begin(), prog_.end(),
+                   [](auto &&pair){ pair.second->Clear (); });
+    std::for_each (regs_.begin(), regs_.end(),
+                   [](auto &&reg){ reg->ChangeValue ("0"); });
+    std::for_each (digits_.begin(), digits_.end(),
+                   [](auto &&digit){ digit->ChangeValue ("0"); });
 
-    for (auto &&val : registers_)
-        val->ChangeValue ("0.");
-
-    screen_text->ChangeValue ("0.");
-    screen_text->ChangeValue ("0.");
+    cursor_set (0);
 }
 
-void CalcFrame::cursor_set (int pos) //get number of current position, makes it's Background blue
+void CalcFrame::cursor_set (int pos)
 {
     for (auto &&elem : prog_)
     {

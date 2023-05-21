@@ -18,7 +18,7 @@ enum Button_ID
     ARROWUP,
     CX,
     SIGN,
-    POINT,
+    COMMA,
     P,
     F,
     LSTEP,

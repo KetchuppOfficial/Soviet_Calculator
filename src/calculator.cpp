@@ -22,9 +22,9 @@ void Soviet_Calculator::reset_flags ()
     exp_ = 0;
 }
 
+static constexpr int offset = 30;
 static int calcutale_instruction_id (const int id, const bool p_flag, const bool f_flag)
 {
-    constexpr int offset = 30;
     return id + offset * p_flag + 2 * offset * f_flag;
 }
 
@@ -208,6 +208,10 @@ void Soviet_Calculator::negate ()
 
         F_flag_ = false;
     }
+    else if (P_flag_) {
+        mem_.right_rotate();
+        P_flag_ = false;
+    }
     else {
         if (exp_flag_)
             exp_ = -exp_;
@@ -235,6 +239,10 @@ void Soviet_Calculator::comma ()
 
         F_flag_ = false;
     }
+    else if (P_flag_) {
+        mem_.left_rotate();
+        P_flag_ = false;
+    }
     else {
         comma_flag_ = true;
         P_flag_ = false;
@@ -261,31 +269,23 @@ void Soviet_Calculator::set_F ()
 
 void Soviet_Calculator::step_left ()
 {
-    if (prog_flag_) {
-        add_cmd(12);
-    }
-    else if (P_flag_) { 
+    if (P_flag_) { 
         prog_flag_ = true;
         P_flag_ = false;
     }
     else {
-        mem_.left_rotate();
-        F_flag_ = false;
+        //шг
     }
 }
 
 void Soviet_Calculator::step_right ()
 {
-    if (prog_flag_) {
-        add_cmd(13);
-    }
-    else if (P_flag_) { 
+    if (P_flag_) { 
         prog_flag_ = false;
         P_flag_ = false;
     }
     else {
-        mem_.right_rotate();
-        F_flag_ = false;
+        //шг
     }
 }
 
@@ -331,15 +331,31 @@ void Soviet_Calculator::vo ()
 void Soviet_Calculator::sp ()
 {
     if (prog_flag_) {
-        add_cmd(16);
+        prog_flag_ = false;
+
+        while (true)
+        {
+            auto step_ptr = mem_.get_step_ptr();
+            if (step_ptr > 36)
+                break;
+
+            auto command_id = mem_.get_cmd(step_ptr);
+
+            auto check_flags = command_id / offset;
+            if (check_flags == 1)
+                P_flag_ = true;
+            else if (check_flags == 2)
+                F_flag_ = true;
+
+            auto handler = handlers_[command_id % offset];
+            (this->*handler)();
+
+            mem_.inc_step_ptr();
+        }
     }
     else if (P_flag_) { 
         // jne
         P_flag_ = false;
-    }
-    else {
-        // execute
-        F_flag_ = false;
     }
 }
 

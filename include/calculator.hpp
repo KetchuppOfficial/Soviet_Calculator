@@ -65,6 +65,7 @@ private:
     void step_right ();
     void input_exp ();
     void digits_handler (unsigned digit);
+    void digits_main_case (unsigned digit);
 };
 
 } // namespace ussr

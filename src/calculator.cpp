@@ -265,12 +265,8 @@ void Soviet_Calculator::input_exp () //ВП = ввод порядка
     }
 }
 
-void Soviet_Calculator::digits_handler (unsigned digit)
+void Soviet_Calculator::digits_main_case (unsigned digit)
 {
-    #ifdef DEBUG
-    std::cout << digit << " pressed" << std::endl;
-    #endif // DEBUG
-
     if (prev_op_flag_)
     {
         mem_.set_y(mem_.get_x());
@@ -305,6 +301,26 @@ void Soviet_Calculator::digits_handler (unsigned digit)
             exp_digits_ = 1;
         }
     }
+}
+
+void Soviet_Calculator::digits_handler (unsigned digit)
+{
+    #ifdef DEBUG
+    std::cout << digit << " pressed" << std::endl;
+    #endif // DEBUG
+
+    if (P_flag_)
+    {
+        mem_[digit] = mem_.get_x();
+        P_flag_ = false;
+    }
+    else if (F_flag_)
+    {
+        mem_.set_x (mem_[digit]);
+        F_flag_ = false;
+    }
+    else
+        digits_main_case (digit);
 }
 
 Soviet_Calculator::Soviet_Calculator ()

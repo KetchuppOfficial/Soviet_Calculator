@@ -16,9 +16,8 @@ class BackPanel : public wxPanel
 
 public:
 
-    BackPanel (wxFrame *parent, wxString file, wxBitmapType format, wxString file2);
+    BackPanel (wxFrame *parent, wxString file, wxString file2, wxBitmapType format);
     void paintEvent (wxPaintEvent &evt);
-    void paintBack ();
     void setImage (wxDC &dc);
 };
 

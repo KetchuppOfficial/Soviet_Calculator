@@ -13,7 +13,7 @@ class CalcFrame : public wxFrame
     std::array <std::pair<wxTextCtrl *, wxTextCtrl *>, 36> prog_;
     // first subarray used to be called prog_number
     // second subarray used to be called prog_code
-    std::array <wxTextCtrl*, 14> reg_value;
+    std::array <wxTextCtrl*, 14> registers_;
     std::array <wxBitmapButton*, Button_ID::END_ - Button_ID::BEGIN_ - 1> calc_buttons_;
 
     BackPanel *drawPane;

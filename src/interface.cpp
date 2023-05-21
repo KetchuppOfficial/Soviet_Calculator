@@ -110,7 +110,7 @@ void CalcFrame::init_prog_buttons ()
 void CalcFrame::init_reg_buttons ()
 {   
     auto i = 0;
-    for (auto &&reg : reg_value)
+    for (auto &&reg : registers_)
     {
         wxPoint pt;
         wxSize size;
@@ -163,7 +163,7 @@ CalcFrame::CalcFrame (const wxString &title)
                        main_sizer{new wxBoxSizer (wxHORIZONTAL)}
 {
     wxInitAllImageHandlers ();
-    drawPane = new BackPanel (this, wxT("images/calcApp.png"), wxBITMAP_TYPE_PNG, wxT("images/mem.png"));
+    drawPane = new BackPanel (this, wxT("images/calcApp.png"), wxT("images/mem.png"), wxBITMAP_TYPE_PNG);
     main_sizer->Add (drawPane, 1, wxEXPAND | wxRIGHT | wxBOTTOM, 0);
     SetSizer(main_sizer);
 
@@ -224,7 +224,7 @@ void CalcFrame::null_everything ()
     for (auto &&elem : prog_)
         elem.second->ChangeValue ("");
 
-    for (auto &&val : reg_value)
+    for (auto &&val : registers_)
         val->ChangeValue ("00000000000");
 
     screen_text->Clear ();
@@ -238,7 +238,7 @@ void CalcFrame::init_everything () //initialization at calc turning on
     for (auto &&elem : prog_)
         elem.second->Clear ();
 
-    for (auto &&val : reg_value)
+    for (auto &&val : registers_)
         val->ChangeValue ("0.");
 
     screen_text->ChangeValue ("0.");

@@ -3,7 +3,7 @@
 namespace ussr
 {
 
-BackPanel::BackPanel (wxFrame *parent, wxString file, wxBitmapType format, wxString file2)
+BackPanel::BackPanel (wxFrame *parent, wxString file, wxString file2, wxBitmapType format)
                      : wxPanel(parent)
 {
     image.LoadFile (file, format);

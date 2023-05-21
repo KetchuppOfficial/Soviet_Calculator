@@ -91,7 +91,7 @@ void CalcFrame::init_prog_buttons ()
         auto y = 50 + 41*(i / 6);
 
         prog_number = new wxTextCtrl (this,
-                                      Button_ID::SCREEN, wxString{dec_to_six (i)}, 
+                                      Button_ID::SCREEN, wxString{dec_to_six (i)},
                                       wxPoint (x, y), wxSize (50, 40),
                                       wxTE_READONLY | wxTE_CENTRE);
 
@@ -108,37 +108,32 @@ void CalcFrame::init_prog_buttons ()
 }
 
 void CalcFrame::init_reg_buttons ()
-{   
-    auto i = 0;
+{
+    regs_[0] = new wxTextCtrl (this,
+                               Button_ID::SCREEN, wxT(""),
+                               wxPoint{710, 731}, wxSize{155, 39},
+                               wxTE_READONLY | wxTE_CENTRE);
+
+    for (auto i = 1; i != 4; ++i)
+        regs_[i] = new wxTextCtrl (this,
+                                   Button_ID::SCREEN, wxT(""),
+                                   wxPoint{923 + (i - 1)*179, 564}, wxSize{156, 43},
+                                   wxTE_READONLY | wxTE_CENTRE);
+
+    for (auto i = 4; i != 7; ++i)
+        regs_[i] = new wxTextCtrl (this,
+                                   Button_ID::SCREEN, wxT(""),
+                                   wxPoint{942 + (i - 4)*179, 719}, wxSize{156, 43},
+                                   wxTE_READONLY | wxTE_CENTRE);
+                               
+    for (auto i = 7; i != regs_.size(); ++i)
+        regs_[i] = new wxTextCtrl (this,
+                                   Button_ID::SCREEN, wxT(""),
+                                   wxPoint{710, 691 - 40*(i - 7)}, wxSize{155, 39},
+                                   wxTE_READONLY | wxTE_CENTRE);
+
     for (auto &&reg : regs_)
-    {
-        wxPoint pt;
-        wxSize size;
-
-        if (i < 8) 
-        {
-            pt = wxPoint (710, 451 + 40*i);
-            size.Set (155, 39);
-        }
-        else if (i < 11)
-        {
-            pt = wxPoint (923 + i*179, 564);
-            size.Set (156, 43);
-        }
-        else
-        {
-            pt = wxPoint (942 + (i - 3)*179, 719);
-            size.Set (156, 43);
-        }
-
-        reg = new wxTextCtrl (this,
-                              Button_ID::SCREEN,
-                              wxT(""), pt, size,
-                              wxTE_READONLY | wxTE_CENTRE);
-
         set (reg, 16, *wxBLUE, wxColour{223, 136, 136});
-        i++;
-    }
 }
 
 void CalcFrame::init_calc_buttons ()
@@ -206,17 +201,35 @@ void CalcFrame::print_number ()
 {
     auto num = std::to_string (calc_.get_memory().get_x());
 
-    auto n_symbs = num.find ('.') + calc_.get_comma_flag() + calc_.get_digits_after_comma();
-    if (n_symbs > digits_.size())
-        n_symbs = digits_.size();
-
-    for (auto rit = digits_.rbegin(), rend = digits_.rend(); rit != rend; ++rit)
+    if (!calc_.get_prev_op_flag())
     {
-        if (n_symbs > 0)
-            (*rit)->ChangeValue (wxString{num[--n_symbs]});
-        else
-            (*rit)->ChangeValue ("0");
+        auto n_symbs = num.find ('.') + calc_.get_comma_flag() + calc_.get_digits_after_comma();
+        if (n_symbs > digits_.size())
+            n_symbs = digits_.size();
+
+        for (auto rit = digits_.rbegin(), rend = digits_.rend(); rit != rend; ++rit)
+        {
+            if (n_symbs > 0)
+                (*rit)->ChangeValue (wxString{num[--n_symbs]});
+            else
+                (*rit)->ChangeValue ("0");
+        }
     }
+    else
+    {
+        auto i = 0;
+        for (auto it = digits_.begin(), ite = digits_.end(); it != ite; ++it)
+            (*it)->ChangeValue (wxString{num[i++]});
+    }
+}
+
+void CalcFrame::print_regs ()
+{
+    auto &mem = calc_.get_memory();
+
+    auto i = 0;
+    std::for_each (regs_.begin(), regs_.end(),
+                   [&mem, i](auto &&reg) mutable { reg->ChangeValue (std::to_string (mem[i++])); });
 }
 
 void CalcFrame::click (wxCommandEvent &event)
@@ -226,7 +239,9 @@ void CalcFrame::click (wxCommandEvent &event)
 
     auto ID = event.GetId ();
     calc_.handle_button (static_cast<Button_ID>(ID));
+
     print_number();
+    print_regs();
     
     #if 0
     cursor_set (ID - 1000);

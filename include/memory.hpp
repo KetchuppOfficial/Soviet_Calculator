@@ -21,6 +21,7 @@ public:
 	//----------------------------work mode----------------------------//
 
 	arifmetic_type operator [] (std::size_t i) const;
+	arifmetic_type &operator [] (std::size_t i);
 	void negate_x ();
 	void reset_x ();
 	void set_y_from_x();

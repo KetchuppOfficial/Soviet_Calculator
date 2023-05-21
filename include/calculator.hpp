@@ -17,10 +17,11 @@ class Soviet_Calculator final
     int exp_;
 
     bool P_flag_ = false;
-	bool F_flag_ = false;
+	  bool F_flag_ = false;
     bool comma_flag_ = false;
     bool exp_flag_ = false;
     bool prog_flag_ = false;
+    bool prev_op_flag_ = false;
 
     int significand_digits_ = 0;
     int exp_digits_ = 0;
@@ -33,10 +34,11 @@ public:
     Soviet_Calculator ();
 
     void handle_button (Button_ID id);
-    
+
     const Memory &get_memory () const;
     int get_digits_after_comma () const;
     bool get_comma_flag () const;
+    bool get_prev_op_flag () const;
 
     void reset ();
 
@@ -70,6 +72,7 @@ private:
     void bp ();
     void pp ();
     void digits_handler (unsigned digit);
+    void digits_main_case (unsigned digit);
 };
 
 } // namespace ussr

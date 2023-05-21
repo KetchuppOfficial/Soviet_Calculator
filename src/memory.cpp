@@ -56,7 +56,7 @@ Memory::arifmetic_type Memory::get_y () const
 void Memory::set_Pregs (std::size_t regnum, arifmetic_type val)
 {
 	regnum+=6;
-    if ((regnum > 15) || (regnum < 8))
+    if ((regnum > 13) || (regnum < 8))
 		return;
     regs_[regnum] = val;
 }
@@ -64,19 +64,19 @@ void Memory::set_Pregs (std::size_t regnum, arifmetic_type val)
 Memory::arifmetic_type Memory::get_Pregs (std::size_t regnum) const
 {
 	regnum += 6;
-    if ((regnum > 15) || (regnum < 8))
+    if ((regnum > 13) || (regnum < 8))
 		return 0;
     return regs_[regnum];	
 }
   
 void Memory::left_rotate () 
 {
-    std::rotate (regs_.begin(), regs_.begin() + 1, regs_.end() - 9);
+    std::rotate (regs_.begin(), regs_.begin() + 1, regs_.end() - 7);
 }  
 
 void Memory::right_rotate () 
 {
-    std::rotate (regs_.rbegin() + 9, regs_.rbegin() + 10, regs_.rend());
+    std::rotate (regs_.rbegin() + 7, regs_.rbegin() + 8, regs_.rend());
 }
 
 std::size_t Memory::n_work_regs () const
@@ -138,7 +138,7 @@ std::size_t Memory::n_prog_regs() const
 
 std::size_t ptr_check(std::size_t ptr)
 {
-    if ((ptr >= 0) && (ptr < 60))
+    if ((ptr >= 0) && (ptr < 36))
 		return 1;
 	else
 		return 0;
@@ -161,3 +161,4 @@ void mem_print (const Memory& memory)
 }
 
 }// namespace ussr
+

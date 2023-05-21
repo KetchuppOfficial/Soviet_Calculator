@@ -1,317 +1,279 @@
 #include "calculator.hpp"
 
+#ifdef DEBUG
+#include <iostream>
+#endif // DEBUG
+
 #include <cmath>
 
 namespace ussr
 {
 
-namespace
+void Soviet_Calculator::reset ()
 {
+    P_flag_ = false;
+    F_flag_ = false;
+    comma_flag_ = false;
+    exp_flag_ = false;
+    significand_digits_ = 0;
+    exp_digits_ = 0;
+    exp_ = 0;
+}
 
-constexpr double pi = 3.14159265359;
+void Soviet_Calculator::plus ()
+{    
+    if (P_flag_) {
+        auto x = mem_.get_x();
+        mem_.set_x(std::sin(x));
 
-void plus (Soviet_Calculator &calc)
-{
-    auto &mem = calc.get_memory();
-    
-    if (calc.get_P_flag()) {
-        auto x = mem.get_x();
-        mem.set_x(std::sin(x));
-
-        calc.reset_P_flag();
+        P_flag_ = false;
     }
     else {
-        mem.set_x(mem.get_x() + mem.get_y());
-        calc.reset_F_flag();
+        mem_.set_x(mem_.get_x() + mem_.get_y());
+        F_flag_ = false;
     }
 }
 
-void minus (Soviet_Calculator &calc)
+void Soviet_Calculator::minus ()
 {
-    auto &mem = calc.get_memory();
-    
-    if (calc.get_P_flag()) {
-        auto x = mem.get_x();
-        mem.set_x(std::cos(x));
+    if (P_flag_) {
+        auto x = mem_.get_x();
+        mem_.set_x(std::cos(x));
 
-        calc.reset_P_flag();
+        P_flag_ = false;
     }
     else {
-        mem.set_x(mem.get_y() - mem.get_x());
-        calc.reset_F_flag();
+        mem_.set_x(mem_.get_y() - mem_.get_x());
+        F_flag_ = false;
     }
 }
 
-void mult (Soviet_Calculator &calc)
+void Soviet_Calculator::mult ()
 {
-    auto &mem = calc.get_memory();
+    constexpr double pi = 3.14159265359;
     
-    if (calc.get_P_flag()) {
-        mem.set_x(pi);
-        calc.reset_P_flag();
+    if (P_flag_) {
+        mem_.set_x(pi);
+        P_flag_ = false;
     }
     else {
-        mem.set_x(mem.get_y() * mem.get_x());
-        calc.reset_F_flag();
+        mem_.set_x(mem_.get_y() * mem_.get_x());
+        F_flag_ = false;
     }
 }
 
-void div (Soviet_Calculator &calc)
+void Soviet_Calculator::div ()
 {
-    auto &mem = calc.get_memory();
-    
-    if (calc.get_P_flag()) {
-        auto x = mem.get_x();
-        mem.set_x(std::exp(x));
+    if (P_flag_) {
+        auto x = mem_.get_x();
+        mem_.set_x(std::exp(x));
 
-        calc.reset_P_flag();
+        P_flag_ = false;
     }
     else {
-        mem.set_x(mem.get_y() / mem.get_x());
-        calc.reset_F_flag();
+        mem_.set_x(mem_.get_y() / mem_.get_x());
+        F_flag_ = false;
     }
 }
 
-void pow (Soviet_Calculator &calc)
+void Soviet_Calculator::pow ()
 {
-    auto &mem = calc.get_memory();
-    
-    if (calc.get_P_flag()) { 
+    if (P_flag_) { 
         //НОП
-        calc.reset_P_flag();
+        P_flag_ = false;
     }
     else {
-        mem.set_x(std::pow(mem.get_x(), mem.get_y()));
-        calc.reset_F_flag();
+        mem_.set_x(std::pow(mem_.get_x(), mem_.get_y()));
+        F_flag_ = false;
     }
 }
 
-void swap_x_y (Soviet_Calculator &calc)
+void Soviet_Calculator::swap_x_y ()
 {
-    auto &mem = calc.get_memory();
-    
-    if (calc.get_P_flag()) { 
-        auto x = mem.get_x();
-        mem.set_x(std::log(x));
-
-        calc.reset_P_flag();
+    if (P_flag_) {
+        mem_.set_x(std::log(mem_.get_x()));
+        P_flag_ = false;
     }
     else {
-        mem.swap_xy();
-        calc.reset_F_flag();
+        mem_.swap_xy();
+        F_flag_ = false;
     }
 }
 
-void reset (Soviet_Calculator &calc)
+void Soviet_Calculator::up_arrow ()
 {
-    calc.reset_P_flag();
-    calc.reset_F_flag();
-    calc.reset_comma_flag();
-    calc.reset_exp_flag();
-    calc.reset_significand_digits();
-    calc.reset_exp_digits();
-    calc.set_exp (0);
-}
-
-void up_arrow (Soviet_Calculator &calc)
-{
-    auto &mem = calc.get_memory();
-    
-    if (calc.get_P_flag()) { 
+    if (P_flag_) { 
         //e^ix
-        calc.reset_P_flag();
+        P_flag_ = false;
     }
     else {
-        mem.set_y(mem.get_x());
-        reset (calc);
+        mem_.set_y(mem_.get_x());
+        reset();
     }
 }
 
-void clear (Soviet_Calculator &calc)
+void Soviet_Calculator::clear ()
 {
-    calc.get_memory().reset_x();
-    reset (calc);
+    mem_.reset_x();
+    reset();
 }
 
-void negate (Soviet_Calculator &calc)
+void Soviet_Calculator::negate ()
 {
-    auto &mem = calc.get_memory();
+    if (F_flag_) { 
+        auto x = mem_.get_x();
+        mem_.set_x(x * x);
 
-    if (calc.get_F_flag()) { 
-        auto x = mem.get_x();
-        mem.set_x(x * x);
-
-        calc.reset_F_flag();
+        F_flag_ = false;
     }
     else {
-        if (calc.get_exp_flag())
-            calc.negate_exp();
+        if (exp_flag_)
+            exp_ = -exp_;
         else
-            mem.negate_x();
+            mem_.negate_x();
 
-        calc.reset_P_flag();
+        P_flag_ = false;
     }
 }
 
-void comma (Soviet_Calculator &calc)
+void Soviet_Calculator::comma ()
 {
-    auto &mem = calc.get_memory();
-    
-    if (calc.get_F_flag()) { 
-        auto x = mem.get_x();
+    if (F_flag_) { 
+        auto x = mem_.get_x();
         if (!x)
-            mem.set_x(1 / x);
+            mem_.set_x(1 / x);
 
-        calc.reset_F_flag();
+        F_flag_ = false;
     }
     else {
-        calc.set_comma_flag();
-        calc.reset_P_flag();
+        comma_flag_ = true;
+        P_flag_ = false;
     }
 }
 
-void set_P (Soviet_Calculator &calc)
+void Soviet_Calculator::set_P ()
 {
-    calc.set_P_flag();
-    calc.reset_F_flag();
+    P_flag_ = true;
+    F_flag_ = false;
 }
 
-void set_F (Soviet_Calculator &calc)
+void Soviet_Calculator::set_F ()
 {
-    calc.set_F_flag();
-    calc.reset_P_flag();
+    F_flag_ = true;
+    P_flag_ = false;
 }
 
-void step_left (Soviet_Calculator &calc)
+void Soviet_Calculator::step_left ()
 {
-    auto &mem = calc.get_memory();
-
-    if (calc.get_P_flag()) { 
+    if (P_flag_) { 
         //PП
-        calc.reset_P_flag();
+        P_flag_ = false;
     }
     else {
-        mem.left_rotate();
-        calc.reset_F_flag();
+        mem_.left_rotate();
+        F_flag_ = false;
     }
 }
 
-void step_right (Soviet_Calculator &calc)
+void Soviet_Calculator::step_right ()
 {
-    auto &mem = calc.get_memory();
-    
-    if (calc.get_P_flag()) { 
+    if (P_flag_) { 
         //PP
-        calc.reset_P_flag();
+        P_flag_ = false;
     }
     else {
-        mem.right_rotate();
-        calc.reset_F_flag();
+        mem_.right_rotate();
+        F_flag_ = false;
     }
 }
 
-void input_exp (Soviet_Calculator &calc) //ВП = ввод порядка
+void Soviet_Calculator::input_exp () //ВП = ввод порядка
 {
-    auto &mem = calc.get_memory();
-    
-    if (calc.get_F_flag()) { 
-        auto x = mem.get_x();
+    if (F_flag_) { 
+        auto x = mem_.get_x();
         if (x >= 0) {
-            mem.set_x(std::sqrt(x));
+            mem_.set_x(std::sqrt(x));
         }
 
-        calc.reset_F_flag();
+        F_flag_ = false;
     }
     else {
-        calc.set_exp_flag();
-        calc.reset_P_flag();
+        exp_flag_ = true;
+        P_flag_ = false;
     }
 }
 
-void digits_handler (Soviet_Calculator &calc, unsigned digit)
+void Soviet_Calculator::digits_handler (unsigned digit)
 {
-    auto &mem = calc.get_memory();
-
-    if (calc.get_exp_flag() == false)
+    if (exp_flag_ == false)
     {
-        if (calc.get_significand_digits() < 8)
+        if (significand_digits_ < 8)
         {
-            if (calc.get_comma_flag())
-                mem.set_x (mem.get_x() + digit / 1.0);
+            if (comma_flag_)
+                mem_.set_x (mem_.get_x() + digit / 1.0);
             else
-                mem.set_x (mem.get_x() * 10 + digit);
+                mem_.set_x (mem_.get_x() * 10 + digit);
 
-            calc.inc_significand_digits();
+            significand_digits_++;
         }  
     }    
-    else if (calc.get_exp_digits() < 2)
+    else if (exp_digits_ < 2)
     {
-        calc.set_exp (calc.get_exp() * 10 + digit);
-        calc.inc_exp_digits();
+        exp_ = exp_ * 10 + digit;
+        exp_digits_++;
     }
 }
-
-} // unnamed namespace
 
 Soviet_Calculator::Soviet_Calculator ()
 {
-    handlers_[0] = plus;
-    handlers_[1] = minus;
-    handlers_[2] = mult;
-    handlers_[3] = div;
-    handlers_[4] = pow;
-    handlers_[5] = swap_x_y;
-    handlers_[6] = up_arrow;
-    handlers_[7] = clear;
-    handlers_[8] = negate;
-    handlers_[9] = comma;
-    handlers_[10] = set_P;
-    handlers_[11] = set_F;
-    handlers_[12] = step_left;
-    handlers_[13] = step_right;
-    handlers_[14] = input_exp;
+    handlers_[0] = &Soviet_Calculator::plus;
+    handlers_[1] = &Soviet_Calculator::minus;
+    handlers_[2] = &Soviet_Calculator::mult;
+    handlers_[3] = &Soviet_Calculator::div;
+    handlers_[4] = &Soviet_Calculator::pow;
+    handlers_[5] = &Soviet_Calculator::swap_x_y;
+    handlers_[6] = &Soviet_Calculator::up_arrow;
+    handlers_[7] = &Soviet_Calculator::clear;
+    handlers_[8] = &Soviet_Calculator::negate;
+    handlers_[9] = &Soviet_Calculator::comma;
+    handlers_[10] = &Soviet_Calculator::set_P;
+    handlers_[11] = &Soviet_Calculator::set_F;
+    handlers_[12] = &Soviet_Calculator::step_left;
+    handlers_[13] = &Soviet_Calculator::step_right;
+    handlers_[14] = &Soviet_Calculator::input_exp;
 }
 
 void Soviet_Calculator::handle_button (Button_ID id)
 {
     if (Button_ID::ZERO <= id && Button_ID::NINE)
-        digits_handler(*this, id - Button_ID::ZERO);
+        digits_handler (id - Button_ID::ZERO);
     else
     {
-        auto handler = handlers_[id];
-        handler (*this);
+        auto handler = handlers_[id - Button_ID::BEGIN_ - 1];
+        (this->*handler)();
     }
 }
 
-bool Soviet_Calculator::get_P_flag() const { return P_flag_; }
-void Soviet_Calculator::set_P_flag() { P_flag_ = true; }
-void Soviet_Calculator::reset_P_flag() { P_flag_ = false; }
+#ifdef DEBUG
 
-bool Soviet_Calculator::get_F_flag() const { return F_flag_;  }
-void Soviet_Calculator::set_F_flag() { F_flag_ = true; }
-void Soviet_Calculator::reset_F_flag() { F_flag_ = false; }
+void Soviet_Calculator::debug_print ()
+{
+    std::cout << "x: " << mem_.get_x() << std::endl;
+    std::cout << "y: " << mem_.get_y() << std::endl;
+    std::cout << "exp: " << exp_ << std::endl;
 
-bool Soviet_Calculator::get_comma_flag() const { return comma_flag_; }
-void Soviet_Calculator::set_comma_flag() { comma_flag_ = true; }
-void Soviet_Calculator::reset_comma_flag() { comma_flag_ = false;}
+    std::cout << "P_flag: " << std::boolalpha << P_flag_ << std::endl;
+    std::cout << "F_flag: " << std::boolalpha << F_flag_ << std::endl;
+    std::cout << "comma_flag_: " << std::boolalpha << comma_flag_ << std::endl;
+    std::cout << "exp_flag_: " << std::boolalpha << exp_flag_ << std::endl;
 
-bool Soviet_Calculator::get_exp_flag() const { return exp_flag_; }
-void Soviet_Calculator::set_exp_flag() { exp_flag_ = true; }
-void Soviet_Calculator::reset_exp_flag() { exp_flag_ = false;}
+    std::cout << "significand_digits: " << significand_digits_ << std::endl;
+    std::cout << "exp_digits: " << exp_digits_ << std::endl;
 
-unsigned Soviet_Calculator::get_significand_digits () const { return digits_.first; }
-void Soviet_Calculator::inc_significand_digits () { digits_.first++; }
-void Soviet_Calculator::reset_significand_digits () { digits_.first = 0; }
+    std::cout << "memory: ";
+    mem_print (mem_);
+}
 
-unsigned Soviet_Calculator::get_exp_digits () const { return digits_.second; }
-void Soviet_Calculator::inc_exp_digits () { digits_.second++; }
-void Soviet_Calculator::reset_exp_digits () { digits_.second = 0; }
-
-int Soviet_Calculator::get_exp () const { return exp_; }
-void Soviet_Calculator::set_exp (int exp) { exp_ = exp; }
-void Soviet_Calculator::negate_exp () { exp_ = -exp_; }
-
-Memory &Soviet_Calculator::get_memory () { return mem_; }
-const Memory &Soviet_Calculator::get_memory () const { return mem_; }
+#endif // DEBUG
 
 } // namespace ussr

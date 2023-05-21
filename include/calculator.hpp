@@ -11,7 +11,7 @@ namespace ussr
 
 class Soviet_Calculator final
 {
-    using handler = void (*) (Soviet_Calculator &);
+    using handler = void (Soviet_Calculator::*) ();
     
     Memory mem_;
     int exp_;
@@ -21,7 +21,8 @@ class Soviet_Calculator final
     bool comma_flag_ = false;
     bool exp_flag_ = false;
 
-    std::pair<unsigned, unsigned> digits_{};
+    unsigned significand_digits_ = 0;
+    unsigned exp_digits_ = 0;
 
     std::array<handler, Button_ID::END_ - Button_ID::BEGIN_ - 11> handlers_;
 
@@ -31,36 +32,30 @@ public:
 
     void handle_button (Button_ID id);
 
-    bool get_P_flag() const;
-    void set_P_flag();
-    void reset_P_flag ();
+    #ifdef DEBUG
+    void debug_print ();
+    #endif // DEBUG
 
-    bool get_F_flag() const;
-    void set_F_flag();
-    void reset_F_flag ();
+private:
 
-    bool get_comma_flag() const;
-    void set_comma_flag();
-    void reset_comma_flag();
+    void reset ();
 
-    bool get_exp_flag() const;
-    void set_exp_flag();
-    void reset_exp_flag();
-
-    unsigned get_significand_digits () const;
-    void inc_significand_digits ();
-    void reset_significand_digits ();
-
-    unsigned get_exp_digits () const;
-    void inc_exp_digits ();
-    void reset_exp_digits ();
-
-    int get_exp () const;
-    void set_exp (int exp);
-    void negate_exp ();
-
-    Memory &get_memory();
-    const Memory &get_memory() const;
+    void plus ();
+    void minus ();
+    void mult ();
+    void div ();
+    void pow ();
+    void swap_x_y ();
+    void up_arrow ();
+    void clear ();
+    void negate ();
+    void comma ();
+    void set_P ();
+    void set_F ();
+    void step_left ();
+    void step_right ();
+    void input_exp ();
+    void digits_handler (unsigned digit);
 };
 
 } // namespace ussr

@@ -483,6 +483,10 @@ Soviet_Calculator::Soviet_Calculator ()
     handlers_[12] = &Soviet_Calculator::step_left;
     handlers_[13] = &Soviet_Calculator::step_right;
     handlers_[14] = &Soviet_Calculator::input_exp;
+    handlers_[15] = &Soviet_Calculator::vo;
+    handlers_[16] = &Soviet_Calculator::sp;
+    handlers_[17] = &Soviet_Calculator::vo;
+    handlers_[18] = &Soviet_Calculator::sp;
 }
 
 void Soviet_Calculator::handle_button (Button_ID id)

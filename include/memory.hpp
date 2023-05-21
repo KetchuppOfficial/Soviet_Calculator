@@ -9,7 +9,7 @@ namespace ussr
 class Memory final
 {
 	using arifmetic_type = double;
-	std::array<arifmetic_type, 16> regs_{};
+	std::array<arifmetic_type, 14> regs_{};
 	arifmetic_type &x_reg_ = regs_[0];
 	arifmetic_type &y_reg_ = regs_[7];
 

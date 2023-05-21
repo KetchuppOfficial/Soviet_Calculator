@@ -12,8 +12,8 @@ enum Button_ID
     MINUS,
     MULT,
     DIV,
-
     POW,
+    
     SWAP,
     ARROWUP,
     CX,
@@ -23,12 +23,13 @@ enum Button_ID
     F,
     LSTEP,
     RSTEP,
-    BP,
-
-    PP,
     VP,
+
     VO,
     SP,
+    BP,
+    PP,
+
     SCREEN,
     TURN,
 

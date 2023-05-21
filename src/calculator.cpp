@@ -16,6 +16,7 @@ void Soviet_Calculator::reset ()
     comma_flag_ = false;
     exp_flag_ = false;
     significand_digits_ = 0;
+    after_comma_ = 0;
     exp_digits_ = 0;
     exp_ = 0;
 }
@@ -133,6 +134,7 @@ void Soviet_Calculator::negate ()
             mem_.negate_x();
 
         P_flag_ = false;
+        comma_flag_ = false;
     }
 }
 
@@ -200,6 +202,7 @@ void Soviet_Calculator::input_exp () //ВП = ввод порядка
     else {
         exp_flag_ = true;
         P_flag_ = false;
+        comma_flag_ = false;
     }
 }
 
@@ -210,17 +213,28 @@ void Soviet_Calculator::digits_handler (unsigned digit)
         if (significand_digits_ < 8)
         {
             if (comma_flag_)
-                mem_.set_x (mem_.get_x() + digit / 1.0);
+            {
+                after_comma_++;
+                mem_.set_x (mem_.get_x() + digit * std::pow (10, -after_comma_));
+            }
             else
                 mem_.set_x (mem_.get_x() * 10 + digit);
 
             significand_digits_++;
         }  
     }    
-    else if (exp_digits_ < 2)
+    else
     {
-        exp_ = exp_ * 10 + digit;
-        exp_digits_++;
+        if (exp_digits_ < 2)
+        {
+            exp_ = exp_ * 10 + digit;
+            exp_digits_++;
+        }
+        else
+        {
+            exp_ = (std::abs (exp_) % 10) * 10 + digit;
+            exp_digits_ = 1;
+        }
     }
 }
 
@@ -254,6 +268,8 @@ void Soviet_Calculator::handle_button (Button_ID id)
     }
 }
 
+const Memory &Soviet_Calculator::get_memory () const { return mem_; }
+
 #ifdef DEBUG
 
 void Soviet_Calculator::debug_print ()
@@ -268,6 +284,7 @@ void Soviet_Calculator::debug_print ()
     std::cout << "exp_flag_: " << std::boolalpha << exp_flag_ << std::endl;
 
     std::cout << "significand_digits: " << significand_digits_ << std::endl;
+    std::cout << "after_comma: " << after_comma_ << std::endl;
     std::cout << "exp_digits: " << exp_digits_ << std::endl;
 
     std::cout << "memory: ";

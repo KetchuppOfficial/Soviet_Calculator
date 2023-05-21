@@ -21,8 +21,9 @@ class Soviet_Calculator final
     bool comma_flag_ = false;
     bool exp_flag_ = false;
 
-    unsigned significand_digits_ = 0;
-    unsigned exp_digits_ = 0;
+    int significand_digits_ = 0;
+    int exp_digits_ = 0;
+    int after_comma_ = 0;
 
     std::array<handler, Button_ID::END_ - Button_ID::BEGIN_ - 11> handlers_;
 
@@ -31,6 +32,7 @@ public:
     Soviet_Calculator ();
 
     void handle_button (Button_ID id);
+    const Memory &get_memory () const;
 
     #ifdef DEBUG
     void debug_print ();

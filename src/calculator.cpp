@@ -15,11 +15,28 @@ void Soviet_Calculator::reset_flags ()
     F_flag_ = false;
     comma_flag_ = false;
     exp_flag_ = false;
+    prog_flag_ = false;
     prev_op_flag_ = false;
     significand_digits_ = 0;
     after_comma_ = 0;
     exp_digits_ = 0;
     exp_ = 0;
+}
+
+static constexpr int offset = 30;
+static int calcutale_instruction_id (const int id, const bool p_flag, const bool f_flag)
+{
+    return id + offset * p_flag + 2 * offset * f_flag;
+}
+
+void Soviet_Calculator::add_cmd (const int base_id)
+{
+    auto id = calcutale_instruction_id (base_id, P_flag_, F_flag_);
+    mem_.set_cmd(id);
+    mem_.inc_step_ptr();
+
+    P_flag_ = false;
+    F_flag_ = false;
 }
 
 void Soviet_Calculator::plus ()
@@ -28,7 +45,10 @@ void Soviet_Calculator::plus ()
     std::cout << "PLUS pressed" << std::endl;
     #endif // DEBUG
     
-    if (P_flag_) {
+    if (prog_flag_) {
+        add_cmd(0);
+    }
+    else if (P_flag_) {
         auto x = mem_.get_x();
         mem_.set_x(std::sin(x));
 
@@ -47,8 +67,11 @@ void Soviet_Calculator::minus ()
     #ifdef DEBUG
     std::cout << "MINUS pressed" << std::endl;
     #endif // DEBUG
-    
-    if (P_flag_) {
+
+    if (prog_flag_) {
+        add_cmd(1);
+    }
+    else if (P_flag_) {
         auto x = mem_.get_x();
         mem_.set_x(std::cos(x));
 
@@ -70,7 +93,10 @@ void Soviet_Calculator::mult ()
     
     constexpr double pi = 3.14159265359;
     
-    if (P_flag_) {
+    if (prog_flag_) {
+        add_cmd(2);
+    }
+    else if (P_flag_) {
         mem_.set_x(pi);
         P_flag_ = false;
     }
@@ -88,7 +114,10 @@ void Soviet_Calculator::div ()
     std::cout << "DIV pressed" << std::endl;
     #endif // DEBUG
     
-    if (P_flag_) {
+    if (prog_flag_) {
+        add_cmd(3);
+    }
+    else if (P_flag_) {
         auto x = mem_.get_x();
         mem_.set_x(std::exp(x));
 
@@ -108,7 +137,10 @@ void Soviet_Calculator::pow ()
     std::cout << "POW pressed" << std::endl;
     #endif // DEBUG
     
-    if (P_flag_) { 
+    if (prog_flag_) {
+        add_cmd(4);
+    }
+    else if (P_flag_) { 
         //НОП
         P_flag_ = false;
     }
@@ -125,7 +157,10 @@ void Soviet_Calculator::swap_x_y ()
     std::cout << "SWAP pressed" << std::endl;
     #endif // DEBUG
     
-    if (P_flag_) {
+    if (prog_flag_) {
+        add_cmd(5);
+    }
+    else if (P_flag_) {
         mem_.set_x(std::log(mem_.get_x()));
         P_flag_ = false;
     }
@@ -143,7 +178,10 @@ void Soviet_Calculator::up_arrow ()
     std::cout << "UPARROW pressed" << std::endl;
     #endif // DEBUG
     
-    if (P_flag_) { 
+    if (prog_flag_) {
+        add_cmd(6);
+    }
+    else if (P_flag_) { 
         //e^ix
         P_flag_ = false;
     }
@@ -159,6 +197,10 @@ void Soviet_Calculator::clear ()
     std::cout << "CX pressed" << std::endl;
     #endif // DEBUG
     
+    if (prog_flag_) {
+        add_cmd(7);
+    }
+
     mem_.reset_x();
     reset_flags();
 }
@@ -168,13 +210,20 @@ void Soviet_Calculator::negate ()
     #ifdef DEBUG
     std::cout << "SIGN pressed" << std::endl;
     #endif // DEBUG
-    
-    if (F_flag_) { 
+
+    if (prog_flag_) {
+        add_cmd(8);
+    }
+    else if (F_flag_) { 
         auto x = mem_.get_x();
         mem_.set_x(x * x);
 
         F_flag_ = false;
         prev_op_flag_ = true;
+    }
+    else if (P_flag_) {
+        mem_.right_rotate();
+        P_flag_ = false;
     }
     else {
         if (exp_flag_)
@@ -192,14 +241,21 @@ void Soviet_Calculator::comma ()
     #ifdef DEBUG
     std::cout << "COMMA pressed" << std::endl;
     #endif // DEBUG
-    
-    if (F_flag_) { 
+
+    if (prog_flag_) {
+        add_cmd(9);
+    }
+    else if (F_flag_) { 
         auto x = mem_.get_x();
         if (x != 0)
             mem_.set_x(1 / x);
 
         F_flag_ = false;
         prev_op_flag_ = true;
+    }
+    else if (P_flag_) {
+        mem_.left_rotate();
+        P_flag_ = false;
     }
     else {
         comma_flag_ = true;
@@ -209,12 +265,18 @@ void Soviet_Calculator::comma ()
 
 void Soviet_Calculator::set_P ()
 {
+    if (prog_flag_) {
+        add_cmd(10);
+    }
     P_flag_ = true;
     F_flag_ = false;
 }
 
 void Soviet_Calculator::set_F ()
 {
+    if (prog_flag_) {
+        add_cmd(11);
+    }
     F_flag_ = true;
     P_flag_ = false;
 }
@@ -222,24 +284,22 @@ void Soviet_Calculator::set_F ()
 void Soviet_Calculator::step_left ()
 {
     if (P_flag_) { 
-        //PП
+        prog_flag_ = true;
         P_flag_ = false;
     }
     else {
-        mem_.left_rotate();
-        F_flag_ = false;
+        //шг
     }
 }
 
 void Soviet_Calculator::step_right ()
 {
     if (P_flag_) { 
-        //PP
+        prog_flag_ = false;
         P_flag_ = false;
     }
     else {
-        mem_.right_rotate();
-        F_flag_ = false;
+        //шг
     }
 }
 
@@ -249,7 +309,10 @@ void Soviet_Calculator::input_exp () //ВП = ввод порядка
     std::cout << "VP pressed" << std::endl;
     #endif // DEBUG
     
-    if (F_flag_) { 
+    if (prog_flag_) {
+        add_cmd(14);
+    }
+    else if (F_flag_) { 
         auto x = mem_.get_x();
         if (x >= 0) {
             mem_.set_x(std::sqrt(x));
@@ -263,6 +326,86 @@ void Soviet_Calculator::input_exp () //ВП = ввод порядка
         P_flag_ = false;
         comma_flag_ = false;
     }
+}
+
+void Soviet_Calculator::vo ()
+{
+    if (prog_flag_) {
+        add_cmd(15);
+    }
+    else if (P_flag_) { 
+        // jbe
+        P_flag_ = false;
+    }
+    else {
+        mem_.reset_step_ptr();
+        F_flag_ = false;
+    }
+}
+
+void Soviet_Calculator::sp ()
+{
+    if (prog_flag_) {
+        prog_flag_ = false;
+
+        while (true)
+        {
+            auto step_ptr = mem_.get_step_ptr();
+            if (step_ptr > 36)
+                break;
+
+            auto command_id = mem_.get_cmd(step_ptr);
+
+            auto check_flags = command_id / offset;
+            if (check_flags == 1)
+                P_flag_ = true;
+            else if (check_flags == 2)
+                F_flag_ = true;
+
+            auto handler = handlers_[command_id % offset];
+            (this->*handler)();
+
+            mem_.inc_step_ptr();
+        }
+    }
+    else if (P_flag_) { 
+        // jne
+        P_flag_ = false;
+    }
+}
+
+void Soviet_Calculator::bp ()
+{
+    if (prog_flag_) {
+        add_cmd(17);
+    }
+    else if (P_flag_) { 
+        // je
+        P_flag_ = false;
+    }
+    else {
+        mem_.set_step_ptr(mem_.get_cmd(mem_.get_step_ptr() + 1)); 
+        mem_.inc_step_ptr ();
+        mem_.inc_step_ptr ();
+
+        F_flag_ = false;
+    }
+}
+
+void Soviet_Calculator::pp ()
+{
+    if (prog_flag_) {
+        add_cmd(18);
+    }
+    else if (P_flag_) { 
+        // jb
+        P_flag_ = false;
+    }
+    else {
+        //subprogramm
+        F_flag_ = false;
+    }
+
 }
 
 void Soviet_Calculator::digits_main_case (unsigned digit)
@@ -340,11 +483,15 @@ Soviet_Calculator::Soviet_Calculator ()
     handlers_[12] = &Soviet_Calculator::step_left;
     handlers_[13] = &Soviet_Calculator::step_right;
     handlers_[14] = &Soviet_Calculator::input_exp;
+    handlers_[15] = &Soviet_Calculator::vo;
+    handlers_[16] = &Soviet_Calculator::sp;
+    handlers_[17] = &Soviet_Calculator::vo;
+    handlers_[18] = &Soviet_Calculator::sp;
 }
 
 void Soviet_Calculator::handle_button (Button_ID id)
 {
-    if (Button_ID::ZERO <= id && Button_ID::NINE)
+    if (Button_ID::ZERO <= id && id <= Button_ID::NINE)
         digits_handler (id - Button_ID::ZERO);
     else
     {

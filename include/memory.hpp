@@ -15,7 +15,7 @@ class Memory final
 	arifmetic_type &y_reg_ = regs_[7];
 
 	std::array<std::size_t, 60> cmd_stack_regs_;
-	size_t step_ptr_ = 0;
+	std::size_t step_ptr_ = 0;
 
 public:
 	//----------------------------work mode----------------------------//

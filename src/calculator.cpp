@@ -281,6 +281,24 @@ void Soviet_Calculator::set_F ()
     P_flag_ = false;
 }
 
+int Soviet_Calculator::execute_command ()
+{
+    auto step_ptr = mem_.get_step_ptr();
+    auto command_id = mem_.get_cmd(step_ptr);
+
+    auto check_flags = command_id / offset;
+    if (check_flags == 1)
+        P_flag_ = true;
+    else if (check_flags == 2)
+        F_flag_ = true;
+
+    auto id = command_id % offset;
+    auto handler = handlers_[id];
+    (this->*handler)();
+
+    mem_.inc_step_ptr();
+    return id;
+}
 void Soviet_Calculator::step_left ()
 {
     if (P_flag_) { 
@@ -288,7 +306,8 @@ void Soviet_Calculator::step_left ()
         P_flag_ = false;
     }
     else {
-        //шг
+        prog_flag_ = false;
+        execute_command ();
     }
 }
 
@@ -299,11 +318,13 @@ void Soviet_Calculator::step_right ()
         P_flag_ = false;
     }
     else {
-        //шг
+        prog_flag_ = false;
+        execute_command ();
+        mem_.set_step_ptr(mem_.get_step_ptr() - 2);
     }
 }
 
-void Soviet_Calculator::input_exp () //ВП = ввод порядка
+void Soviet_Calculator::input_exp () 
 {
     #ifdef DEBUG
     std::cout << "VP pressed" << std::endl;
@@ -348,24 +369,12 @@ void Soviet_Calculator::sp ()
     if (prog_flag_) {
         prog_flag_ = false;
 
+        prog_flag_ = false;
         while (true)
         {
-            auto step_ptr = mem_.get_step_ptr();
-            if (step_ptr > 36)
+            auto ex_id = execute_command ();
+            if (ex_id == 16)
                 break;
-
-            auto command_id = mem_.get_cmd(step_ptr);
-
-            auto check_flags = command_id / offset;
-            if (check_flags == 1)
-                P_flag_ = true;
-            else if (check_flags == 2)
-                F_flag_ = true;
-
-            auto handler = handlers_[command_id % offset];
-            (this->*handler)();
-
-            mem_.inc_step_ptr();
         }
     }
     else if (P_flag_) { 

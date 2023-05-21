@@ -137,7 +137,7 @@ void Soviet_Calculator::up_arrow ()
     }
     else {
         mem_.set_y(mem_.get_x());
-        reset();
+        clear();
     }
 }
 

@@ -52,6 +52,8 @@ public:
 	void dec_step_ptr ();
 
 	std::size_t n_prog_regs () const;
+
+	void reset();
 };
 
 void mem_print (const Memory& memory);

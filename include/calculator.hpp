@@ -37,6 +37,7 @@ public:
     const Memory &get_memory () const;
     int get_digits_after_comma () const;
     bool get_comma_flag () const;
+    bool get_prev_op_flag () const;
 
     void reset ();
 

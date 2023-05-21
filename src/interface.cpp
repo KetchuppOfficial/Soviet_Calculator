@@ -201,16 +201,25 @@ void CalcFrame::print_number ()
 {
     auto num = std::to_string (calc_.get_memory().get_x());
 
-    auto n_symbs = num.find ('.') + calc_.get_comma_flag() + calc_.get_digits_after_comma();
-    if (n_symbs > digits_.size())
-        n_symbs = digits_.size();
-
-    for (auto rit = digits_.rbegin(), rend = digits_.rend(); rit != rend; ++rit)
+    if (!calc_.get_prev_op_flag())
     {
-        if (n_symbs > 0)
-            (*rit)->ChangeValue (wxString{num[--n_symbs]});
-        else
-            (*rit)->ChangeValue ("0");
+        auto n_symbs = num.find ('.') + calc_.get_comma_flag() + calc_.get_digits_after_comma();
+        if (n_symbs > digits_.size())
+            n_symbs = digits_.size();
+
+        for (auto rit = digits_.rbegin(), rend = digits_.rend(); rit != rend; ++rit)
+        {
+            if (n_symbs > 0)
+                (*rit)->ChangeValue (wxString{num[--n_symbs]});
+            else
+                (*rit)->ChangeValue ("0");
+        }
+    }
+    else
+    {
+        auto i = 0;
+        for (auto it = digits_.begin(), ite = digits_.end(); it != ite; ++it)
+            (*it)->ChangeValue (wxString{num[i++]});
     }
 }
 

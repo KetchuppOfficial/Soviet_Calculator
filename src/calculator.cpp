@@ -37,8 +37,9 @@ void Soviet_Calculator::plus ()
     else {
         mem_.set_x(mem_.get_x() + mem_.get_y());
         F_flag_ = false;
-        prev_op_flag_ = true;
     }
+
+    prev_op_flag_ = true;
 }
 
 void Soviet_Calculator::minus ()
@@ -56,8 +57,9 @@ void Soviet_Calculator::minus ()
     else {
         mem_.set_x(mem_.get_y() - mem_.get_x());
         F_flag_ = false;
-        prev_op_flag_ = true;
     }
+
+    prev_op_flag_ = true;
 }
 
 void Soviet_Calculator::mult ()
@@ -75,8 +77,9 @@ void Soviet_Calculator::mult ()
     else {
         mem_.set_x(mem_.get_y() * mem_.get_x());
         F_flag_ = false;
-        prev_op_flag_ = true;
     }
+
+    prev_op_flag_ = true;
 }
 
 void Soviet_Calculator::div ()
@@ -94,8 +97,9 @@ void Soviet_Calculator::div ()
     else {
         mem_.set_x(mem_.get_y() / mem_.get_x());
         F_flag_ = false;
-        prev_op_flag_ = true;
     }
+    
+    prev_op_flag_ = true;
 }
 
 void Soviet_Calculator::pow ()
@@ -111,6 +115,7 @@ void Soviet_Calculator::pow ()
     else {
         mem_.set_x(std::pow(mem_.get_x(), mem_.get_y()));
         F_flag_ = false;
+        prev_op_flag_ = true;
     }
 }
 
@@ -128,6 +133,8 @@ void Soviet_Calculator::swap_x_y ()
         mem_.swap_xy();
         F_flag_ = false;
     }
+
+    prev_op_flag_ = true;
 }
 
 void Soviet_Calculator::up_arrow ()
@@ -167,6 +174,7 @@ void Soviet_Calculator::negate ()
         mem_.set_x(x * x);
 
         F_flag_ = false;
+        prev_op_flag_ = true;
     }
     else {
         if (exp_flag_)
@@ -187,10 +195,11 @@ void Soviet_Calculator::comma ()
     
     if (F_flag_) { 
         auto x = mem_.get_x();
-        if (!x)
+        if (x != 0)
             mem_.set_x(1 / x);
 
         F_flag_ = false;
+        prev_op_flag_ = true;
     }
     else {
         comma_flag_ = true;
@@ -244,6 +253,7 @@ void Soviet_Calculator::input_exp () //ВП = ввод порядка
         auto x = mem_.get_x();
         if (x >= 0) {
             mem_.set_x(std::sqrt(x));
+            prev_op_flag_ = true;   
         }
 
         F_flag_ = false;
@@ -338,6 +348,8 @@ const Memory &Soviet_Calculator::get_memory () const { return mem_; }
 int Soviet_Calculator::get_digits_after_comma () const { return after_comma_; }
 
 bool Soviet_Calculator::get_comma_flag () const { return comma_flag_; }
+
+bool Soviet_Calculator::get_prev_op_flag () const { return prev_op_flag_; }
 
 #ifdef DEBUG
 

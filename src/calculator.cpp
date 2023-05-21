@@ -1,15 +1,15 @@
-#include "calculator.hpp"
-
 #ifdef DEBUG
 #include <iostream>
 #endif // DEBUG
 
 #include <cmath>
 
+#include "calculator.hpp"
+
 namespace ussr
 {
 
-void Soviet_Calculator::reset ()
+void Soviet_Calculator::reset_flags ()
 {
     P_flag_ = false;
     F_flag_ = false;
@@ -23,6 +23,10 @@ void Soviet_Calculator::reset ()
 
 void Soviet_Calculator::plus ()
 {    
+    #ifdef DEBUG
+    std::cout << "PLUS pressed" << std::endl;
+    #endif // DEBUG
+    
     if (P_flag_) {
         auto x = mem_.get_x();
         mem_.set_x(std::sin(x));
@@ -37,6 +41,10 @@ void Soviet_Calculator::plus ()
 
 void Soviet_Calculator::minus ()
 {
+    #ifdef DEBUG
+    std::cout << "MINUS pressed" << std::endl;
+    #endif // DEBUG
+    
     if (P_flag_) {
         auto x = mem_.get_x();
         mem_.set_x(std::cos(x));
@@ -51,6 +59,10 @@ void Soviet_Calculator::minus ()
 
 void Soviet_Calculator::mult ()
 {
+    #ifdef DEBUG
+    std::cout << "MULT pressed" << std::endl;
+    #endif // DEBUG
+    
     constexpr double pi = 3.14159265359;
     
     if (P_flag_) {
@@ -65,6 +77,10 @@ void Soviet_Calculator::mult ()
 
 void Soviet_Calculator::div ()
 {
+    #ifdef DEBUG
+    std::cout << "DIV pressed" << std::endl;
+    #endif // DEBUG
+    
     if (P_flag_) {
         auto x = mem_.get_x();
         mem_.set_x(std::exp(x));
@@ -79,6 +95,10 @@ void Soviet_Calculator::div ()
 
 void Soviet_Calculator::pow ()
 {
+    #ifdef DEBUG
+    std::cout << "POW pressed" << std::endl;
+    #endif // DEBUG
+    
     if (P_flag_) { 
         //НОП
         P_flag_ = false;
@@ -91,6 +111,10 @@ void Soviet_Calculator::pow ()
 
 void Soviet_Calculator::swap_x_y ()
 {
+    #ifdef DEBUG
+    std::cout << "SWAP pressed" << std::endl;
+    #endif // DEBUG
+    
     if (P_flag_) {
         mem_.set_x(std::log(mem_.get_x()));
         P_flag_ = false;
@@ -103,6 +127,10 @@ void Soviet_Calculator::swap_x_y ()
 
 void Soviet_Calculator::up_arrow ()
 {
+    #ifdef DEBUG
+    std::cout << "UPARROW pressed" << std::endl;
+    #endif // DEBUG
+    
     if (P_flag_) { 
         //e^ix
         P_flag_ = false;
@@ -115,12 +143,20 @@ void Soviet_Calculator::up_arrow ()
 
 void Soviet_Calculator::clear ()
 {
+    #ifdef DEBUG
+    std::cout << "CX pressed" << std::endl;
+    #endif // DEBUG
+    
     mem_.reset_x();
-    reset();
+    reset_flags();
 }
 
 void Soviet_Calculator::negate ()
 {
+    #ifdef DEBUG
+    std::cout << "SIGN pressed" << std::endl;
+    #endif // DEBUG
+    
     if (F_flag_) { 
         auto x = mem_.get_x();
         mem_.set_x(x * x);
@@ -140,6 +176,10 @@ void Soviet_Calculator::negate ()
 
 void Soviet_Calculator::comma ()
 {
+    #ifdef DEBUG
+    std::cout << "COMMA pressed" << std::endl;
+    #endif // DEBUG
+    
     if (F_flag_) { 
         auto x = mem_.get_x();
         if (!x)
@@ -191,6 +231,10 @@ void Soviet_Calculator::step_right ()
 
 void Soviet_Calculator::input_exp () //ВП = ввод порядка
 {
+    #ifdef DEBUG
+    std::cout << "VP pressed" << std::endl;
+    #endif // DEBUG
+    
     if (F_flag_) { 
         auto x = mem_.get_x();
         if (x >= 0) {
@@ -208,6 +252,10 @@ void Soviet_Calculator::input_exp () //ВП = ввод порядка
 
 void Soviet_Calculator::digits_handler (unsigned digit)
 {
+    #ifdef DEBUG
+    std::cout << digit << " pressed" << std::endl;
+    #endif // DEBUG
+    
     if (exp_flag_ == false)
     {
         if (significand_digits_ < 8)
@@ -268,7 +316,17 @@ void Soviet_Calculator::handle_button (Button_ID id)
     }
 }
 
+void Soviet_Calculator::reset ()
+{
+    reset_flags ();
+    mem_.reset();
+}
+
 const Memory &Soviet_Calculator::get_memory () const { return mem_; }
+
+int Soviet_Calculator::get_digits_after_comma () const { return after_comma_; }
+
+bool Soviet_Calculator::get_comma_flag () const { return comma_flag_; }
 
 #ifdef DEBUG
 

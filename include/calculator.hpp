@@ -32,7 +32,12 @@ public:
     Soviet_Calculator ();
 
     void handle_button (Button_ID id);
+    
     const Memory &get_memory () const;
+    int get_digits_after_comma () const;
+    bool get_comma_flag () const;
+
+    void reset ();
 
     #ifdef DEBUG
     void debug_print ();
@@ -40,7 +45,7 @@ public:
 
 private:
 
-    void reset ();
+    void reset_flags ();
 
     void plus ();
     void minus ();

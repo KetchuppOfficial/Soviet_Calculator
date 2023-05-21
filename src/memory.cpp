@@ -1,4 +1,6 @@
 #include <iostream>
+#include <algorithm>
+
 #include "memory.hpp"
 
 namespace ussr

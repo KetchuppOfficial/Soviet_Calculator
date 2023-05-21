@@ -6,12 +6,14 @@
 namespace ussr
 {
 
+//----------------------------work mode----------------------------//
+
 typename Memory::arifmetic_type Memory::operator[](std::size_t i) const
 {
     return regs_[i];
 }
 
-void Memory::negate_x()
+void Memory::negate_x ()
 {
 	 x_reg_ = -x_reg_;
 }
@@ -21,7 +23,7 @@ void Memory::reset_x ()
 	x_reg_ = 0; 
 }
 
-void Memory::set_y_from_x()
+void Memory::set_y_from_x ()
 {
 	y_reg_ = x_reg_;
 }
@@ -77,16 +79,85 @@ void Memory::right_rotate ()
     std::rotate (regs_.rbegin() + 9, regs_.rbegin() + 10, regs_.rend());
 }
 
-size_t Memory::n_regs() const
+std::size_t Memory::n_work_regs () const
 {
     return regs_.size();
 }
 
-void mem_print(const Memory& memory)
+//--------------------------programming mode-------------------------//
+
+std::size_t Memory::get_cmd (std::size_t ptr) const
 {
-	for (auto i = 0; i < memory.n_regs(); i++)
-		std::cout << memory[i] << " "; 
-	std::cout << '\n';	
+	if (!ptr_check(ptr))
+		return 0;
+    return cmd_stack_regs_[(ptr)];
 }
 
-} // namespace ussr
+void Memory::set_cmd (std::size_t cmd)
+{
+	if (!ptr_check(step_ptr_))
+		return;
+	cmd_stack_regs_[step_ptr_] = cmd;
+}
+
+std::size_t Memory::set_step_ptr (std::size_t ptr)
+{
+	if (ptr_check(ptr))
+	{
+		step_ptr_ = ptr;
+		return 1;
+	}
+	else
+		return 0;
+}
+
+void Memory::reset_step_ptr ()
+{
+	step_ptr_ = 0;
+}
+
+std::size_t Memory::get_step_ptr () const
+{
+    return step_ptr_;
+}
+
+void Memory::inc_step_ptr()
+{
+	step_ptr_++;
+}
+
+void Memory::dec_step_ptr()
+{
+	step_ptr_--;
+}
+
+std::size_t Memory::n_prog_regs() const
+{
+    return cmd_stack_regs_.size();
+}
+
+std::size_t ptr_check(std::size_t ptr)
+{
+    if ((ptr >= 0) && (ptr < 60))
+		return 1;
+	else
+		return 0;
+}
+
+void mem_print (const Memory& memory)
+{
+	std::cout << "common regs_:\n";
+	for (auto i = 0; i < memory.n_work_regs(); i++)
+		std::cout << memory[i] << " "; 
+	std::cout << '\n';	
+	
+	std::cout << "cmd_stack_regs_:\n";
+	for (auto i = 0; i < memory.n_prog_regs(); i++)
+	{
+		std::cout << memory.get_cmd(i) << " ";
+		if (!((i+1)%6))
+			std::cout<<'\n'; 
+	}
+}
+
+}// namespace ussr

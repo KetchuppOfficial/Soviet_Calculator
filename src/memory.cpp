@@ -160,5 +160,12 @@ void mem_print (const Memory& memory)
 	}
 }
 
+void Memory::reset ()
+{
+	std::fill (regs_.begin(), regs_.end(), 0);
+	std::fill (cmd_stack_regs_.begin(), cmd_stack_regs_.end(), 0);
+	reset_step_ptr (); //step_ptr_ = 0;
+}
+
 }// namespace ussr
 

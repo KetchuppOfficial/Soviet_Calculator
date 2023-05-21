@@ -60,6 +60,7 @@ void Soviet_Calculator::plus ()
     }
 
     prev_op_flag_ = true;
+    comma_flag_ = false;
 }
 
 void Soviet_Calculator::minus ()
@@ -67,7 +68,6 @@ void Soviet_Calculator::minus ()
     #ifdef DEBUG
     std::cout << "MINUS pressed" << std::endl;
     #endif // DEBUG
-
     if (prog_flag_) {
         add_cmd(1);
     }
@@ -83,6 +83,7 @@ void Soviet_Calculator::minus ()
     }
 
     prev_op_flag_ = true;
+    comma_flag_ = false;
 }
 
 void Soviet_Calculator::mult ()
@@ -106,6 +107,7 @@ void Soviet_Calculator::mult ()
     }
 
     prev_op_flag_ = true;
+    comma_flag_ = false;
 }
 
 void Soviet_Calculator::div ()
@@ -129,6 +131,7 @@ void Soviet_Calculator::div ()
     }
     
     prev_op_flag_ = true;
+    comma_flag_ = false;
 }
 
 void Soviet_Calculator::pow ()
@@ -147,8 +150,10 @@ void Soviet_Calculator::pow ()
     else {
         mem_.set_x(std::pow(mem_.get_x(), mem_.get_y()));
         F_flag_ = false;
-        prev_op_flag_ = true;
     }
+
+    prev_op_flag_ = true;
+    comma_flag_ = false;
 }
 
 void Soviet_Calculator::swap_x_y ()
@@ -169,6 +174,7 @@ void Soviet_Calculator::swap_x_y ()
         F_flag_ = false;
     }
 
+    comma_flag_ = false;
     prev_op_flag_ = true;
 }
 
@@ -187,8 +193,10 @@ void Soviet_Calculator::up_arrow ()
     }
     else {
         mem_.set_y(mem_.get_x());
-        prev_op_flag_ = true;
     }
+
+    prev_op_flag_ = true;
+    comma_flag_ = false;
 }
 
 void Soviet_Calculator::clear ()
@@ -196,6 +204,10 @@ void Soviet_Calculator::clear ()
     #ifdef DEBUG
     std::cout << "CX pressed" << std::endl;
     #endif // DEBUG
+
+    if (prog_flag_) {
+        add_cmd(7);
+    }
     
     if (prog_flag_) {
         add_cmd(7);
@@ -232,7 +244,6 @@ void Soviet_Calculator::negate ()
             mem_.negate_x();
 
         P_flag_ = false;
-        comma_flag_ = false;
     }
 }
 

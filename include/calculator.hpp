@@ -17,7 +17,7 @@ class Soviet_Calculator final
     int exp_;
 
     bool P_flag_ = false;
-	bool F_flag_ = false;
+	  bool F_flag_ = false;
     bool comma_flag_ = false;
     bool exp_flag_ = false;
     bool prog_flag_ = false;

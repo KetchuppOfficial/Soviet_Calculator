@@ -20,6 +20,7 @@ class Soviet_Calculator final
 	bool F_flag_ = false;
     bool comma_flag_ = false;
     bool exp_flag_ = false;
+    bool prog_flag_ = false;
 
     int significand_digits_ = 0;
     int exp_digits_ = 0;
@@ -45,6 +46,8 @@ public:
 
 private:
 
+    void add_cmd (const int id);
+
     void reset_flags ();
 
     void plus ();
@@ -62,6 +65,10 @@ private:
     void step_left ();
     void step_right ();
     void input_exp ();
+    void vo ();
+    void sp ();
+    void bp ();
+    void pp ();
     void digits_handler (unsigned digit);
 };
 

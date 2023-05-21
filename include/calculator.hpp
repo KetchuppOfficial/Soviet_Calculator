@@ -20,6 +20,7 @@ class Soviet_Calculator final
 	bool F_flag_ = false;
     bool comma_flag_ = false;
     bool exp_flag_ = false;
+    bool prev_op_flag_ = false;
 
     int significand_digits_ = 0;
     int exp_digits_ = 0;
@@ -32,7 +33,7 @@ public:
     Soviet_Calculator ();
 
     void handle_button (Button_ID id);
-    
+
     const Memory &get_memory () const;
     int get_digits_after_comma () const;
     bool get_comma_flag () const;

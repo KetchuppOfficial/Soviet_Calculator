@@ -15,6 +15,7 @@ void Soviet_Calculator::reset_flags ()
     F_flag_ = false;
     comma_flag_ = false;
     exp_flag_ = false;
+    prev_op_flag_ = false;
     significand_digits_ = 0;
     after_comma_ = 0;
     exp_digits_ = 0;
@@ -36,6 +37,7 @@ void Soviet_Calculator::plus ()
     else {
         mem_.set_x(mem_.get_x() + mem_.get_y());
         F_flag_ = false;
+        prev_op_flag_ = true;
     }
 }
 
@@ -54,6 +56,7 @@ void Soviet_Calculator::minus ()
     else {
         mem_.set_x(mem_.get_y() - mem_.get_x());
         F_flag_ = false;
+        prev_op_flag_ = true;
     }
 }
 
@@ -72,6 +75,7 @@ void Soviet_Calculator::mult ()
     else {
         mem_.set_x(mem_.get_y() * mem_.get_x());
         F_flag_ = false;
+        prev_op_flag_ = true;
     }
 }
 
@@ -90,6 +94,7 @@ void Soviet_Calculator::div ()
     else {
         mem_.set_x(mem_.get_y() / mem_.get_x());
         F_flag_ = false;
+        prev_op_flag_ = true;
     }
 }
 
@@ -137,7 +142,7 @@ void Soviet_Calculator::up_arrow ()
     }
     else {
         mem_.set_y(mem_.get_x());
-        clear();
+        prev_op_flag_ = true;
     }
 }
 
@@ -255,6 +260,12 @@ void Soviet_Calculator::digits_handler (unsigned digit)
     #ifdef DEBUG
     std::cout << digit << " pressed" << std::endl;
     #endif // DEBUG
+
+    if (prev_op_flag_)
+    {
+        mem_.set_y(mem_.get_x());
+        clear();
+    }
     
     if (exp_flag_ == false)
     {

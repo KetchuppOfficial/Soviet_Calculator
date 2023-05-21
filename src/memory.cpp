@@ -13,6 +13,11 @@ typename Memory::arifmetic_type Memory::operator[](std::size_t i) const
     return regs_[i];
 }
 
+typename Memory::arifmetic_type &Memory::operator[](std::size_t i)
+{
+    return regs_[i];
+}
+
 void Memory::negate_x ()
 {
 	 x_reg_ = -x_reg_;

@@ -21,8 +21,9 @@ cmake --build build
 ./build/calc
 ```
 #Codes of commands:
-|plus -       |0    |with P - 30    |with F - 60|
+|buttons      |code |code with P    |code with F|
 |-------------|-----|---------------|-----------|
+|plus -       |0    |with P - 30    |with F - 60|
 |minus -      |1    |with P - 31    |with F - 61|
 |mult -       |2    |with P - 32    |with F - 62|
 |div -        |3    |with P - 33    |with F - 63|

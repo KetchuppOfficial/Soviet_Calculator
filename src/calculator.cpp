@@ -1,10 +1,10 @@
-#ifdef DEBUG
-#include <iostream>
-#endif // DEBUG
+#include "calculator.hpp"
 
 #include <cmath>
 
-#include "calculator.hpp"
+#ifdef DEBUG
+#include <iostream>
+#endif // DEBUG
 
 namespace ussr
 {
@@ -24,14 +24,15 @@ void Soviet_Calculator::reset_flags ()
 }
 
 static constexpr int offset = 30;
-static int calcutale_instruction_id (const int id, const bool p_flag, const bool f_flag)
-{
-    return id + offset * p_flag + 2 * offset * f_flag;
-}
-
 void Soviet_Calculator::add_cmd (const int base_id)
 {
-    auto id = calcutale_instruction_id (base_id, P_flag_, F_flag_);
+    static constexpr int nums_offset = 20;
+    auto id = base_id;
+    if (base_id >= handlers_.size ())
+        id += nums_offset - handlers_.size(); 
+
+    id += offset * P_flag_ + 2 * offset * F_flag_;
+
     mem_.set_cmd(id);
     mem_.inc_step_ptr();
 
@@ -188,7 +189,10 @@ void Soviet_Calculator::up_arrow ()
         add_cmd(6);
     }
     else if (P_flag_) { 
-        //e^ix
+        auto x = mem_.get_x();
+        mem_.set_x(std::cos(x));
+        mem_.set_y(std::sin(x));
+
         P_flag_ = false;
     }
     else {
@@ -207,14 +211,11 @@ void Soviet_Calculator::clear ()
 
     if (prog_flag_) {
         add_cmd(7);
+    } 
+    else {
+        mem_.reset_x();
+        reset_flags();
     }
-    
-    if (prog_flag_) {
-        add_cmd(7);
-    }
-
-    mem_.reset_x();
-    reset_flags();
 }
 
 void Soviet_Calculator::negate ()
@@ -282,8 +283,8 @@ void Soviet_Calculator::set_P ()
 
 void Soviet_Calculator::set_F ()
 {
-    F_flag_ = true;
     P_flag_ = false;
+    F_flag_ = true;
 }
 
 int Soviet_Calculator::execute_command ()
@@ -298,8 +299,15 @@ int Soviet_Calculator::execute_command ()
         F_flag_ = true;
 
     auto id = command_id % offset;
-    if (id > 20)
+    if (id >= 20) {
+        digits_handler (id - 20);
+        mem_.inc_step_ptr();
         return 0;
+    } 
+    else if (id == 16) {
+        mem_.inc_step_ptr();
+        return 16;
+    }
 
     auto handler = handlers_[id];
     (this->*handler)();
@@ -313,10 +321,12 @@ void Soviet_Calculator::step_left ()
         prog_flag_ = false;
         P_flag_ = false;
     }
-    else {
-        prog_flag_ = false;
+    else if (!prog_flag_) {
         execute_command ();
         mem_.set_step_ptr(mem_.get_step_ptr() - 2);
+    }
+    else {
+        mem_.dec_step_ptr();
     }
 }
 
@@ -326,9 +336,11 @@ void Soviet_Calculator::step_right ()
         prog_flag_ = true;
         P_flag_ = false;
     }
-    else {
-        prog_flag_ = false;
+    else if (!prog_flag_) {
         execute_command ();
+    }
+    else {
+        mem_.inc_step_ptr();
     }
 }
 
@@ -363,8 +375,11 @@ void Soviet_Calculator::vo ()
         add_cmd(15);
     }
     else if (P_flag_) { 
-        // jbe
-        P_flag_ = false;
+        auto x = mem_.get_x();
+        if (x >= 0) {
+            mem_.inc_step_ptr();
+            mem_.set_step_ptr(mem_.get_cmd(mem_.get_step_ptr()) - 1);
+        }
     }
     else {
         mem_.reset_step_ptr();
@@ -375,18 +390,23 @@ void Soviet_Calculator::vo ()
 void Soviet_Calculator::sp ()
 {
     if (prog_flag_) {
-        add_cmd(17);
+        add_cmd(16);
     }
     else if (P_flag_) { 
-        // jne
-        P_flag_ = false;
+        auto x = mem_.get_x();
+        if (x) {
+            mem_.inc_step_ptr();
+            mem_.set_step_ptr(mem_.get_cmd(mem_.get_step_ptr()) - 1);
+        }
     }
     else {
         for (int i = 0; i != 36; ++i)
         {
             auto ex_id = execute_command ();
             if (ex_id == 16)
+            {
                 break;
+            }
         }
     }
 }
@@ -397,13 +417,15 @@ void Soviet_Calculator::bp ()
         add_cmd(17);
     }
     else if (P_flag_) { 
-        // je
-        P_flag_ = false;
+        auto x = mem_.get_x();
+        if (!x) {
+            mem_.inc_step_ptr();
+            mem_.set_step_ptr(mem_.get_cmd(mem_.get_step_ptr()) - 1);
+            P_flag_ = false;
+        }
     }
     else {
-        mem_.set_step_ptr(mem_.get_cmd(mem_.get_step_ptr() + 1)); 
-        mem_.inc_step_ptr ();
-        mem_.inc_step_ptr ();
+        mem_.set_step_ptr(mem_.get_cmd(mem_.get_step_ptr() + 1) - 1); 
 
         F_flag_ = false;
     }
@@ -415,8 +437,11 @@ void Soviet_Calculator::pp ()
         add_cmd(18);
     }
     else if (P_flag_) { 
-        // jb
-        P_flag_ = false;
+        auto x = mem_.get_x();
+        if (x < 0) {
+            mem_.inc_step_ptr();
+            mem_.set_step_ptr(mem_.get_cmd(mem_.get_step_ptr()) - 1);
+        }
     }
     else {
         //subprogramm
@@ -469,13 +494,14 @@ void Soviet_Calculator::digits_handler (unsigned digit)
     std::cout << digit << " pressed" << std::endl;
     #endif // DEBUG
 
-    if (P_flag_)
-    {
+    if (prog_flag_) { 
+        add_cmd (digit + handlers_.size());
+    }
+    else if (P_flag_) {
         mem_.set_Pregs(digit, mem_.get_x());
         P_flag_ = false;
     }
-    else if (F_flag_)
-    {
+    else if (F_flag_) {
         mem_.set_x (mem_.get_Pregs(digit));
         F_flag_ = false;
     }
@@ -485,6 +511,7 @@ void Soviet_Calculator::digits_handler (unsigned digit)
 
 Soviet_Calculator::Soviet_Calculator ()
 {
+    mem_.reset ();
     handlers_[0] = &Soviet_Calculator::plus;
     handlers_[1] = &Soviet_Calculator::minus;
     handlers_[2] = &Soviet_Calculator::mult;

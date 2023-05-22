@@ -187,6 +187,7 @@ CalcFrame::CalcFrame (const wxString &title)
     init_reg_buttons();
     init_calc_buttons();
     init_digits();
+    init_everything();
 
     Maximize (true); //full screen
     Centre();

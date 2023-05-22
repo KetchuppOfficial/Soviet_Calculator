@@ -1,13 +1,43 @@
-#include "calculator.hpp"
-
 #include <cmath>
 
 #ifdef DEBUG
 #include <iostream>
 #endif // DEBUG
 
+#include <iostream>
+#include "calculator.hpp"
+#include "double_comparison.hpp"
+
 namespace ussr
 {
+
+bool Soviet_Calculator::overflow_check (double res)
+{
+    if (cmp::greater (std::abs (res), cmp::precision<double>::EPSILON))
+    {
+        reset();
+        overflow_flag_ = true;
+        std::cout << "OVERFLOW" << std::endl;
+
+        return true;
+    }
+
+    return false;
+}
+
+bool Soviet_Calculator::underflow_check (double res)
+{
+    if (std::abs (res) != 0.0 && cmp::is_zero (std::abs (res)))
+    {
+        underflow_flag_ = true;
+        std::cout << "UNDERFLOW" << std::endl;
+        mem_.set_x (0.0);
+
+        return true;
+    }
+
+    return false;
+}
 
 void Soviet_Calculator::reset_flags ()
 {
@@ -22,6 +52,10 @@ void Soviet_Calculator::reset_flags ()
     after_comma_ = 0;
     exp_digits_ = 0;
     exp_ = 0;
+
+    overflow_flag_ = false;
+    underflow_flag_ = false;
+    exception_flag_ = false;
 }
 
 static constexpr int offset = 30;
@@ -51,13 +85,17 @@ void Soviet_Calculator::plus ()
         add_cmd(0);
     }
     else if (P_flag_) {
-        auto x = mem_.get_x();
-        mem_.set_x(std::sin(x));
+        auto res = std::sin (mem_.get_x());
+        if (!underflow_check (res))
+            mem_.set_x(res);
 
         P_flag_ = false;
     }
     else {
-        mem_.set_x(mem_.get_x() + mem_.get_y());
+        auto res = mem_.get_y() + mem_.get_x();
+        if (!overflow_check (res) && !underflow_check (res))
+            mem_.set_x (res);
+
         F_flag_ = false;
     }
 
@@ -76,13 +114,17 @@ void Soviet_Calculator::minus ()
         add_cmd(1);
     }
     else if (P_flag_) {
-        auto x = mem_.get_x();
-        mem_.set_x(std::cos(x));
+        auto res = std::cos (mem_.get_x());
+        if (!underflow_check (res))
+            mem_.set_x(res);
 
         P_flag_ = false;
     }
     else {
-        mem_.set_x(mem_.get_y() - mem_.get_x());
+        auto res = mem_.get_y() - mem_.get_x();
+        if (!overflow_check (res) && !underflow_check (res))
+            mem_.set_x (res);
+
         F_flag_ = false;
     }
 
@@ -108,7 +150,10 @@ void Soviet_Calculator::mult ()
         P_flag_ = false;
     }
     else {
-        mem_.set_x(mem_.get_y() * mem_.get_x());
+        auto res = mem_.get_y() * mem_.get_x();
+        if (!overflow_check (res) && !underflow_check (res))
+            mem_.set_x (res);
+
         F_flag_ = false;
     }
 
@@ -134,8 +179,14 @@ void Soviet_Calculator::div ()
         P_flag_ = false;
     }
     else {
-        mem_.set_x(mem_.get_y() / mem_.get_x());
-        // HERE
+        auto x = mem_.get_x();
+        if (cmp::is_zero (x))
+            exception_flag_ = true;
+
+        auto res = mem_.get_y() / x;
+        if (!overflow_check (res) && !underflow_check (res))
+            mem_.set_x (res);
+        
         F_flag_ = false;
     }
     
@@ -159,8 +210,14 @@ void Soviet_Calculator::pow ()
         P_flag_ = false;
     }
     else {
-        mem_.set_x(std::pow(mem_.get_x(), mem_.get_y()));
-        // HERE 
+        auto x = mem_.get_x();
+        if (cmp::less (x, 0.0))
+            exception_flag_ = true;
+
+        auto res = std::pow(x, mem_.get_y());
+        if (!overflow_check (res) && !underflow_check (res))
+            mem_.set_x (res);
+
         F_flag_ = false;
     }
 
@@ -180,8 +237,14 @@ void Soviet_Calculator::swap_x_y ()
         add_cmd(5);
     }
     else if (P_flag_) {
-        mem_.set_x(std::log(mem_.get_x()));
-        // HERE
+        auto x = mem_.get_x();
+        if (cmp::less_equal (x, 0.0))
+            exception_flag_ = true;
+
+        auto res = std::log(mem_.get_x());
+        if (!overflow_check (res) && !underflow_check (res))
+            mem_.set_x (res);
+        
         P_flag_ = false;
     }
     else {
@@ -204,13 +267,22 @@ void Soviet_Calculator::up_arrow ()
     }
     else if (P_flag_) { 
         auto x = mem_.get_x();
-        mem_.set_x(std::cos(x));
-        mem_.set_y(std::sin(x));
+        auto cos = std::cos(x);
+        auto sin = std::sin(x);
+        if (!underflow_check (cos) && !underflow_check (sin))
+        {
+            mem_.set_x(cos);
+            mem_.set_y(sin);
+        }
 
         P_flag_ = false;
     }
     else {
-        mem_.set_y(mem_.get_x() * std::pow (10, exp_));
+        auto res = mem_.get_x() * std::pow (10, exp_);
+        if (!overflow_check (res) && !underflow_check (res))
+            mem_.set_y (res);
+        else
+            std::cout << "JOPA" << std::endl;
     }
 
     prev_op_flag_ = true;
@@ -242,7 +314,9 @@ void Soviet_Calculator::negate ()
     }
     else if (F_flag_) { 
         auto x = mem_.get_x();
-        mem_.set_x(x * x);
+        auto res = x * x;
+        if (!overflow_check (res) && !underflow_check (res))
+            mem_.set_x (res);
 
         F_flag_ = false;
         prev_op_flag_ = true;
@@ -274,9 +348,12 @@ void Soviet_Calculator::comma ()
     }
     else if (F_flag_) { 
         auto x = mem_.get_x();
-        if (x != 0)
-            mem_.set_x(1 / x);
-            // HERE
+        if (cmp::is_zero (x))
+            exception_flag_ = true;
+        
+        auto res = 1 / x;
+        if (!overflow_check (res) && !underflow_check (res))
+            mem_.set_x (res);
 
         F_flag_ = false;
         prev_op_flag_ = true;
@@ -360,14 +437,14 @@ void Soviet_Calculator::input_exp ()
     if (prog_flag_) {
         add_cmd(14);
     }
-    else if (F_flag_) { 
+    else if (F_flag_) {
         auto x = mem_.get_x();
-        if (x >= 0) {
+        if (cmp::less (x, 0.0))
+            exception_flag_ = true;
+        else
             mem_.set_x(std::sqrt(x));
-            // HERE
-            prev_op_flag_ = true;
-        }
 
+        prev_op_flag_ = true;
         F_flag_ = false;
     }
     else {
@@ -383,7 +460,7 @@ void Soviet_Calculator::vo ()
     }
     else if (P_flag_) { 
         auto x = mem_.get_x();
-        if (x >= 0) {
+        if (cmp::greater_equal (x, 0.0)) {
             mem_.inc_step_ptr();
             mem_.set_step_ptr(mem_.get_cmd(mem_.get_step_ptr()) - 1);
         }
@@ -401,7 +478,7 @@ void Soviet_Calculator::sp ()
     }
     else if (P_flag_) { 
         auto x = mem_.get_x();
-        if (x) {
+        if (!cmp::is_zero (x)) {
             mem_.inc_step_ptr();
             mem_.set_step_ptr(mem_.get_cmd(mem_.get_step_ptr()) - 1);
         }
@@ -425,7 +502,7 @@ void Soviet_Calculator::bp ()
     }
     else if (P_flag_) { 
         auto x = mem_.get_x();
-        if (!x) {
+        if (cmp::is_zero (x)) {
             mem_.inc_step_ptr();
             mem_.set_step_ptr(mem_.get_cmd(mem_.get_step_ptr()) - 1);
             P_flag_ = false;
@@ -445,7 +522,7 @@ void Soviet_Calculator::pp ()
     }
     else if (P_flag_) { 
         auto x = mem_.get_x();
-        if (x < 0) {
+        if (cmp::less (x, 0.0)) {
             mem_.inc_step_ptr();
             mem_.set_step_ptr(mem_.get_cmd(mem_.get_step_ptr()) - 1);
         }

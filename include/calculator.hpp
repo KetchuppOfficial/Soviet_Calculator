@@ -23,6 +23,10 @@ class Soviet_Calculator final
     bool prog_flag_ = false;
     bool prev_op_flag_ = false;
     bool input_mode_flag_ = true;
+    
+    bool overflow_flag_ = false;
+    bool underflow_flag_ = false;
+    bool exception_flag_ = false;
 
     int significand_digits_ = 0;
     int exp_digits_ = 0;
@@ -43,6 +47,10 @@ public:
     bool get_exp_flag () const;
     int get_exp_digits () const;
     int get_exp () const;
+
+    bool get_overflow_flag () const;
+    bool get_underflow_flag () const;
+    bool get_exception_flag () const;
 
     void reset ();
 
@@ -79,6 +87,9 @@ private:
     void pp ();
     void digits_handler (unsigned digit);
     void digits_main_case (unsigned digit);
+
+    bool overflow_check (double res);
+    bool underflow_check (double res);
 };
 
 } // namespace ussr

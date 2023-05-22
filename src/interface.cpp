@@ -88,8 +88,8 @@ void CalcFrame::init_prog_buttons ()
         auto &prog_number = pair.first;
         auto &prog_code = pair.second;
         
-        auto x = 650 + 120*(i % 6);
-        auto y = 50 + 41*(i / 6);
+        auto x = 650 + 120*(i / 6);
+        auto y = 50 + 41*(i % 6);
 
         prog_number = new wxTextCtrl (this,
                                       Button_ID::SCREEN, wxString{dec_to_six (i)},

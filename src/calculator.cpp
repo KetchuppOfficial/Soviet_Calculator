@@ -448,8 +448,10 @@ void Soviet_Calculator::input_exp ()
         auto x = mem_.get_x();
         if (cmp::less (x, 0.0))
             exception_flag_ = true;
-        else
-            mem_.set_x(std::sqrt(x));
+
+        auto res = std::sqrt(x);
+        if (!overflow_check (res) && !underflow_check (res))
+            mem_.set_x (res);
 
         prev_op_flag_ = true;
         F_flag_ = false;

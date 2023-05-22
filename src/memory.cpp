@@ -10,12 +10,12 @@ namespace ussr
 
 typename Memory::arifmetic_type Memory::operator[](std::size_t i) const
 {
-    return regs_[i];
+    return regs_[i + 8];
 }
 
 typename Memory::arifmetic_type &Memory::operator[](std::size_t i)
 {
-    return regs_[i];
+    return regs_[i + 8];
 }
 
 void Memory::negate_x ()
@@ -153,7 +153,7 @@ void mem_print (const Memory& memory)
 {
 	std::cout << "common regs_:\n";
 	for (auto i = 0; i < memory.n_work_regs(); i++)
-		std::cout << memory[i] << " "; 
+		std::cout << memory[i-8] << " "; 
 	std::cout << '\n';	
 	
 	std::cout << "cmd_stack_regs_:\n";

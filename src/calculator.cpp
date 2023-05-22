@@ -276,18 +276,12 @@ void Soviet_Calculator::comma ()
 
 void Soviet_Calculator::set_P ()
 {
-    if (prog_flag_) {
-        add_cmd(10);
-    }
     P_flag_ = true;
     F_flag_ = false;
 }
 
 void Soviet_Calculator::set_F ()
 {
-    if (prog_flag_) {
-        add_cmd(11);
-    }
     F_flag_ = true;
     P_flag_ = false;
 }
@@ -313,18 +307,6 @@ int Soviet_Calculator::execute_command ()
 void Soviet_Calculator::step_left ()
 {
     if (P_flag_) { 
-        prog_flag_ = true;
-        P_flag_ = false;
-    }
-    else {
-        prog_flag_ = false;
-        execute_command ();
-    }
-}
-
-void Soviet_Calculator::step_right ()
-{
-    if (P_flag_) { 
         prog_flag_ = false;
         P_flag_ = false;
     }
@@ -332,6 +314,18 @@ void Soviet_Calculator::step_right ()
         prog_flag_ = false;
         execute_command ();
         mem_.set_step_ptr(mem_.get_step_ptr() - 2);
+    }
+}
+
+void Soviet_Calculator::step_right ()
+{
+    if (P_flag_) { 
+        prog_flag_ = true;
+        P_flag_ = false;
+    }
+    else {
+        prog_flag_ = false;
+        execute_command ();
     }
 }
 
@@ -474,12 +468,12 @@ void Soviet_Calculator::digits_handler (unsigned digit)
 
     if (P_flag_)
     {
-        mem_[digit] = mem_.get_x();
+        mem_.set_Pregs(digit, mem_.get_x());
         P_flag_ = false;
     }
     else if (F_flag_)
     {
-        mem_.set_x (mem_[digit]);
+        mem_.set_x (mem_.get_Pregs(digit));
         F_flag_ = false;
     }
     else

@@ -128,12 +128,14 @@ std::size_t Memory::get_step_ptr () const
 
 void Memory::inc_step_ptr()
 {
-	step_ptr_++;
+	if (step_ptr_ < (cmd_stack_regs_.size() - 1))
+		step_ptr_++;
 }
 
 void Memory::dec_step_ptr()
-{
-	step_ptr_--;
+{	
+	if (step_ptr_ > 0)
+		step_ptr_--;
 }
 
 std::size_t Memory::n_prog_regs() const

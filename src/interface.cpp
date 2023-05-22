@@ -305,7 +305,7 @@ void CalcFrame::print_cmds ()
 
     auto i = 0;
     std::for_each (prog_.begin(), prog_.end(),
-                   [&mem, i](auto &&cmd) mutable { cmd.second->ChangeValue (std::to_string (mem.get_cmd(i))); i++;});
+                   [&mem, i](auto &&cmd) mutable { cmd.second->ChangeValue (dec_to_six (mem.get_cmd(i))); i++;});
 }
 
 void CalcFrame::click (wxCommandEvent &event)

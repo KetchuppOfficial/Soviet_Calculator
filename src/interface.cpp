@@ -2,7 +2,8 @@
 #include <string>
 #include <algorithm>
 #include <utility>
-
+#include <cmath>
+#include <sstream>
 
 #include "interface.hpp"
 
@@ -198,30 +199,96 @@ void CalcFrame::OnExit (wxCommandEvent &event)
     Close (true);
 };
 
+void CalcFrame::print_exp ()
+{
+    auto exp_digits = calc_.get_exp_digits();
+    if (!calc_.get_exp_flag())
+    {
+        digits_[5]->ChangeValue ("");
+        digits_[6]->ChangeValue ("");
+        digits_[7]->ChangeValue ("");
+    }
+    else if (exp_digits == 0)
+    {
+        digits_[5]->ChangeValue ("");
+        digits_[6]->ChangeValue ("0");
+        digits_[7]->ChangeValue ("0");
+    }
+    else // if (exp_digits < 3)
+    {
+        auto exp = calc_.get_exp();
+        
+        if (exp < 0)
+        {
+            digits_[5]->ChangeValue ("-");
+            exp = -exp;
+        }
+        else
+            digits_[5]->ChangeValue ("");
+            
+        digits_[7]->ChangeValue (std::to_string (exp % 10));
+        exp /= 10;
+        digits_[6]->ChangeValue (std::to_string (exp));
+    }
+}
+
+void CalcFrame::input_mode (double x)
+{
+    auto is_negative = (x < 0);
+    auto num = std::to_string (x);
+    auto n_symbs = std::min (std::size_t{4},
+                             num.find ('.') + calc_.get_comma_flag() + calc_.get_digits_after_comma());
+
+    for (auto rit = std::next (digits_.rbegin(), 3), 
+              rend = std::prev(digits_.rend()); rit != rend; ++rit)
+    {
+        if (n_symbs > 0)
+            (*rit)->ChangeValue (wxString{num[--n_symbs + is_negative]});
+        else
+            (*rit)->ChangeValue ("");
+    }
+
+    print_exp();
+}
+
+void CalcFrame::output_mode (double x)
+{
+    std::stringstream ss;
+    ss << std::scientific << x;
+    auto num = ss.str();
+    auto e_pos = num.find('e');
+
+    if (num[e_pos + 1] == '-')
+        digits_[5]->ChangeValue ("-");
+    else
+        digits_[5]->ChangeValue ("");
+    
+    auto i = 0;
+    for (auto it = std::next (digits_.begin(), 1), 
+              ite = std::prev (digits_.end(), 3); it != ite; ++it)
+    {
+        auto symb = num[i + (x < 0)];
+        if (symb == 'e')
+            break;
+        (*it)->ChangeValue (wxString{symb});
+        i++;
+    }
+
+    digits_[6]->ChangeValue (wxString{num[e_pos + 2]});
+    digits_[7]->ChangeValue (wxString{num[e_pos + 3]});
+}
+
 void CalcFrame::print_number ()
 {
-    auto num = std::to_string (calc_.get_memory().get_x());
+    auto x = calc_.get_memory().get_x();
 
-    if (!calc_.get_prev_op_flag())
-    {
-        auto n_symbs = num.find ('.') + calc_.get_comma_flag() + calc_.get_digits_after_comma();
-        if (n_symbs > digits_.size())
-            n_symbs = digits_.size();
+    if (x < 0)
+        digits_[0]->ChangeValue ("-");
 
-        for (auto rit = digits_.rbegin(), rend = digits_.rend(); rit != rend; ++rit)
-        {
-            if (n_symbs > 0)
-                (*rit)->ChangeValue (wxString{num[--n_symbs]});
-            else
-                (*rit)->ChangeValue ("0");
-        }
-    }
+    if (calc_.get_input_mode_flag())
+        input_mode (x);
     else
-    {
-        auto i = 0;
-        for (auto it = digits_.begin(), ite = digits_.end(); it != ite; ++it)
-            (*it)->ChangeValue (wxString{num[i++]});
-    }
+        output_mode (x);
 }
 
 void CalcFrame::print_regs ()
@@ -298,8 +365,6 @@ void CalcFrame::init_everything ()
                    [](auto &&pair){ pair.second->Clear (); });
     std::for_each (regs_.begin(), regs_.end(),
                    [](auto &&reg){ reg->ChangeValue ("0"); });
-    std::for_each (digits_.begin(), digits_.end(),
-                   [](auto &&digit){ digit->ChangeValue ("0"); });
 
     cursor_set (0);
 }

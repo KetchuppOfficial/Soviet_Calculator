@@ -17,6 +17,7 @@ void Soviet_Calculator::reset_flags ()
     exp_flag_ = false;
     prog_flag_ = false;
     prev_op_flag_ = false;
+    input_mode_flag_ = true;
     significand_digits_ = 0;
     after_comma_ = 0;
     exp_digits_ = 0;
@@ -62,6 +63,8 @@ void Soviet_Calculator::plus ()
 
     prev_op_flag_ = true;
     comma_flag_ = false;
+    input_mode_flag_ = false;
+    exp_flag_ = false;
 }
 
 void Soviet_Calculator::minus ()
@@ -85,6 +88,8 @@ void Soviet_Calculator::minus ()
 
     prev_op_flag_ = true;
     comma_flag_ = false;
+    input_mode_flag_ = false;
+    exp_flag_ = false;
 }
 
 void Soviet_Calculator::mult ()
@@ -109,6 +114,8 @@ void Soviet_Calculator::mult ()
 
     prev_op_flag_ = true;
     comma_flag_ = false;
+    input_mode_flag_ = false;
+    exp_flag_ = false;
 }
 
 void Soviet_Calculator::div ()
@@ -128,11 +135,14 @@ void Soviet_Calculator::div ()
     }
     else {
         mem_.set_x(mem_.get_y() / mem_.get_x());
+        // HERE
         F_flag_ = false;
     }
     
     prev_op_flag_ = true;
     comma_flag_ = false;
+    input_mode_flag_ = false;
+    exp_flag_ = false;
 }
 
 void Soviet_Calculator::pow ()
@@ -150,11 +160,14 @@ void Soviet_Calculator::pow ()
     }
     else {
         mem_.set_x(std::pow(mem_.get_x(), mem_.get_y()));
+        // HERE 
         F_flag_ = false;
     }
 
     prev_op_flag_ = true;
     comma_flag_ = false;
+    input_mode_flag_ = false;
+    exp_flag_ = false;
 }
 
 void Soviet_Calculator::swap_x_y ()
@@ -168,6 +181,7 @@ void Soviet_Calculator::swap_x_y ()
     }
     else if (P_flag_) {
         mem_.set_x(std::log(mem_.get_x()));
+        // HERE
         P_flag_ = false;
     }
     else {
@@ -175,8 +189,8 @@ void Soviet_Calculator::swap_x_y ()
         F_flag_ = false;
     }
 
-    comma_flag_ = false;
     prev_op_flag_ = true;
+    input_mode_flag_ = false;
 }
 
 void Soviet_Calculator::up_arrow ()
@@ -196,11 +210,10 @@ void Soviet_Calculator::up_arrow ()
         P_flag_ = false;
     }
     else {
-        mem_.set_y(mem_.get_x());
+        mem_.set_y(mem_.get_x() * std::pow (10, exp_));
     }
 
     prev_op_flag_ = true;
-    comma_flag_ = false;
 }
 
 void Soviet_Calculator::clear ()
@@ -238,6 +251,8 @@ void Soviet_Calculator::negate ()
         mem_.right_rotate();
         P_flag_ = false;
     }
+    else if (input_mode_flag_ == false)
+        return;
     else {
         if (exp_flag_)
             exp_ = -exp_;
@@ -261,13 +276,10 @@ void Soviet_Calculator::comma ()
         auto x = mem_.get_x();
         if (x != 0)
             mem_.set_x(1 / x);
+            // HERE
 
         F_flag_ = false;
         prev_op_flag_ = true;
-    }
-    else if (P_flag_) {
-        mem_.left_rotate();
-        P_flag_ = false;
     }
     else {
         comma_flag_ = true;
@@ -357,7 +369,8 @@ void Soviet_Calculator::input_exp ()
         auto x = mem_.get_x();
         if (x >= 0) {
             mem_.set_x(std::sqrt(x));
-            prev_op_flag_ = true;   
+            // HERE
+            prev_op_flag_ = true;
         }
 
         F_flag_ = false;
@@ -365,7 +378,6 @@ void Soviet_Calculator::input_exp ()
     else {
         exp_flag_ = true;
         P_flag_ = false;
-        comma_flag_ = false;
     }
 }
 
@@ -451,10 +463,10 @@ void Soviet_Calculator::pp ()
 }
 
 void Soviet_Calculator::digits_main_case (unsigned digit)
-{
+{   
     if (prev_op_flag_)
     {
-        mem_.set_y(mem_.get_x());
+        mem_.set_y(mem_.get_x() * std::pow (10, exp_));
         clear();
     }
     
@@ -507,6 +519,8 @@ void Soviet_Calculator::digits_handler (unsigned digit)
     }
     else
         digits_main_case (digit);
+
+    input_mode_flag_ = true;
 }
 
 Soviet_Calculator::Soviet_Calculator ()
@@ -556,7 +570,13 @@ int Soviet_Calculator::get_digits_after_comma () const { return after_comma_; }
 
 bool Soviet_Calculator::get_comma_flag () const { return comma_flag_; }
 
-bool Soviet_Calculator::get_prev_op_flag () const { return prev_op_flag_; }
+bool Soviet_Calculator::get_input_mode_flag () const { return input_mode_flag_; }
+
+bool Soviet_Calculator::get_exp_flag () const { return exp_flag_; }
+
+int Soviet_Calculator::get_exp_digits () const { return exp_digits_; }
+
+int Soviet_Calculator::get_exp () const { return exp_; }
 
 #ifdef DEBUG
 

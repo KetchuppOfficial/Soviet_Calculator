@@ -282,6 +282,8 @@ void Soviet_Calculator::comma ()
         prev_op_flag_ = true;
     }
     else {
+        mem_.right_rotate();
+
         comma_flag_ = true;
         P_flag_ = false;
     }

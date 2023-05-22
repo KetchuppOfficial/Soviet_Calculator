@@ -41,6 +41,7 @@ private:
 
     void print_number ();
     void print_regs ();
+    void print_cmds ();
 
     void null_everything ();
     void init_everything ();

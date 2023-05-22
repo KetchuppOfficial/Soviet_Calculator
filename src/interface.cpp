@@ -232,6 +232,15 @@ void CalcFrame::print_regs ()
                    [&mem, i](auto &&reg) mutable { reg->ChangeValue (std::to_string (mem[i++])); });
 }
 
+void CalcFrame::print_cmds ()
+{
+    auto &mem = calc_.get_memory();
+
+    auto i = 0;
+    std::for_each (prog_.begin(), prog_.end(),
+                   [&mem, i](auto &&cmd) mutable { cmd.second->ChangeValue (std::to_string (mem.get_cmd(i))); i++;});
+}
+
 void CalcFrame::click (wxCommandEvent &event)
 {
     if (power_on_ == false)
@@ -242,6 +251,8 @@ void CalcFrame::click (wxCommandEvent &event)
 
     print_number();
     print_regs();
+    print_cmds();
+    cursor_set(calc_.get_memory().get_step_ptr());
     
     #if 0
     cursor_set (ID - 1000);

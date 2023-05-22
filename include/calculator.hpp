@@ -14,14 +14,15 @@ class Soviet_Calculator final
     using handler = void (Soviet_Calculator::*) ();
     
     Memory mem_;
-    int exp_;
+    int exp_ = 0;
 
     bool P_flag_ = false;
-	  bool F_flag_ = false;
+	bool F_flag_ = false;
     bool comma_flag_ = false;
     bool exp_flag_ = false;
     bool prog_flag_ = false;
     bool prev_op_flag_ = false;
+    bool input_mode_flag_ = true;
 
     int significand_digits_ = 0;
     int exp_digits_ = 0;
@@ -38,7 +39,10 @@ public:
     const Memory &get_memory () const;
     int get_digits_after_comma () const;
     bool get_comma_flag () const;
-    bool get_prev_op_flag () const;
+    bool get_input_mode_flag () const;
+    bool get_exp_flag () const;
+    int get_exp_digits () const;
+    int get_exp () const;
 
     void reset ();
 

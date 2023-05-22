@@ -40,6 +40,9 @@ private:
     void init_digits ();
 
     void print_number ();
+    void input_mode (double x);
+    void output_mode (double x);
+    void print_exp ();
     void print_regs ();
 
     void null_everything ();

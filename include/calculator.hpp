@@ -57,6 +57,7 @@ private:
 
     void reset_flags ();
 
+    void nop ();
     void plus ();
     void minus ();
     void mult ();

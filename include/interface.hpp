@@ -45,6 +45,7 @@ private:
     void print_exp ();
     void print_regs ();
     void print_cmds ();
+    void print_exceptions ();
 
     void null_everything ();
     void init_everything ();

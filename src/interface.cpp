@@ -124,7 +124,7 @@ void CalcFrame::init_reg_buttons ()
     for (auto i = 4; i != 7; ++i)
         regs_[i] = new wxTextCtrl (this,
                                    Button_ID::SCREEN, wxT(""),
-                                   wxPoint{942 + (6 - i)*179, 719}, wxSize{156, 43},
+                                   wxPoint{942 + (i - 4)*179, 719}, wxSize{156, 43},
                                    wxTE_READONLY | wxTE_CENTRE);
                                
     for (auto i = 7; i != regs_.size(); ++i)
@@ -188,7 +188,6 @@ CalcFrame::CalcFrame (const wxString &title)
     init_reg_buttons();
     init_calc_buttons();
     init_digits();
-    init_everything();
 
     Maximize (true); //full screen
     Centre();
@@ -309,6 +308,15 @@ void CalcFrame::print_cmds ()
                    [&mem, i](auto &&cmd) mutable { cmd.second->ChangeValue (std::to_string (mem.get_cmd(i))); i++;});
 }
 
+void CalcFrame::print_exceptions ()
+{
+    if (calc_.get_overflow_flag() || calc_.get_exception_flag())
+        digits_[0]->ChangeValue ("0");
+    
+    if (calc_.get_underflow_flag())
+        digits_[1]->ChangeValue ("0");
+}
+
 void CalcFrame::click (wxCommandEvent &event)
 {
     if (power_on_ == false)
@@ -321,6 +329,8 @@ void CalcFrame::click (wxCommandEvent &event)
     print_regs();
     print_cmds();
     cursor_set(calc_.get_memory().get_step_ptr());
+
+    print_exceptions();
     
     #if 0
     cursor_set (ID - 1000);

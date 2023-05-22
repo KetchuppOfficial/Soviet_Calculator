@@ -4,7 +4,6 @@
 #include <iostream>
 #endif // DEBUG
 
-#include <iostream>
 #include "calculator.hpp"
 #include "double_comparison.hpp"
 
@@ -17,7 +16,6 @@ bool Soviet_Calculator::overflow_check (double res)
     {
         reset();
         overflow_flag_ = true;
-        std::cout << "OVERFLOW" << std::endl;
 
         return true;
     }
@@ -30,7 +28,6 @@ bool Soviet_Calculator::underflow_check (double res)
     if (std::abs (res) != 0.0 && cmp::is_zero (std::abs (res)))
     {
         underflow_flag_ = true;
-        std::cout << "UNDERFLOW" << std::endl;
         mem_.set_x (0.0);
 
         return true;
@@ -281,8 +278,6 @@ void Soviet_Calculator::up_arrow ()
         auto res = mem_.get_x() * std::pow (10, exp_);
         if (!overflow_check (res) && !underflow_check (res))
             mem_.set_y (res);
-        else
-            std::cout << "JOPA" << std::endl;
     }
 
     prev_op_flag_ = true;
@@ -358,12 +353,12 @@ void Soviet_Calculator::comma ()
         F_flag_ = false;
         prev_op_flag_ = true;
     }
-    else {
+    else if (P_flag_) {
         mem_.left_rotate();
-
-        comma_flag_ = true;
         P_flag_ = false;
     }
+    else
+        comma_flag_ = true;
 }
 
 void Soviet_Calculator::set_P ()
@@ -592,10 +587,12 @@ void Soviet_Calculator::digits_handler (unsigned digit)
     }
     else if (P_flag_) {
         mem_.set_Pregs(digit, mem_.get_x());
+        prev_op_flag_ = true;
         P_flag_ = false;
     }
     else if (F_flag_) {
         mem_.set_x (mem_.get_Pregs(digit));
+        prev_op_flag_ = true;
         F_flag_ = false;
     }
     else
@@ -658,6 +655,10 @@ bool Soviet_Calculator::get_exp_flag () const { return exp_flag_; }
 int Soviet_Calculator::get_exp_digits () const { return exp_digits_; }
 
 int Soviet_Calculator::get_exp () const { return exp_; }
+
+bool Soviet_Calculator::get_exception_flag () const { return exception_flag_; }
+bool Soviet_Calculator::get_overflow_flag () const { return overflow_flag_; }
+bool Soviet_Calculator::get_underflow_flag () const { return underflow_flag_; }
 
 #ifdef DEBUG
 

@@ -298,6 +298,9 @@ int Soviet_Calculator::execute_command ()
         F_flag_ = true;
 
     auto id = command_id % offset;
+    if (id > 20)
+        return 0;
+
     auto handler = handlers_[id];
     (this->*handler)();
 
@@ -372,19 +375,19 @@ void Soviet_Calculator::vo ()
 void Soviet_Calculator::sp ()
 {
     if (prog_flag_) {
-        prog_flag_ = false;
-
-        prog_flag_ = false;
-        while (true)
+        add_cmd(17);
+    }
+    else if (P_flag_) { 
+        // jne
+        P_flag_ = false;
+    }
+    else {
+        for (int i = 0; i != 36; ++i)
         {
             auto ex_id = execute_command ();
             if (ex_id == 16)
                 break;
         }
-    }
-    else if (P_flag_) { 
-        // jne
-        P_flag_ = false;
     }
 }
 

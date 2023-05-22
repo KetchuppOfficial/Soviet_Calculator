@@ -335,10 +335,6 @@ void Soviet_Calculator::step_left ()
         prog_flag_ = false;
         P_flag_ = false;
     }
-    else if (!prog_flag_) {
-        execute_command ();
-        mem_.set_step_ptr(mem_.get_step_ptr() - 2);
-    }
     else {
         mem_.dec_step_ptr();
     }
@@ -349,9 +345,6 @@ void Soviet_Calculator::step_right ()
     if (P_flag_) { 
         prog_flag_ = true;
         P_flag_ = false;
-    }
-    else if (!prog_flag_) {
-        execute_command ();
     }
     else {
         mem_.inc_step_ptr();
@@ -456,9 +449,10 @@ void Soviet_Calculator::pp ()
             mem_.inc_step_ptr();
             mem_.set_step_ptr(mem_.get_cmd(mem_.get_step_ptr()) - 1);
         }
+        P_flag_ = false;
     }
     else {
-        //subprogramm
+        execute_command ();
         F_flag_ = false;
     }
 

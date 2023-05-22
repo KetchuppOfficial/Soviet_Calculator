@@ -124,7 +124,7 @@ void CalcFrame::init_reg_buttons ()
     for (auto i = 4; i != 7; ++i)
         regs_[i] = new wxTextCtrl (this,
                                    Button_ID::SCREEN, wxT(""),
-                                   wxPoint{942 + (i - 4)*179, 719}, wxSize{156, 43},
+                                   wxPoint{942 + (6 - i)*179, 719}, wxSize{156, 43},
                                    wxTE_READONLY | wxTE_CENTRE);
                                
     for (auto i = 7; i != regs_.size(); ++i)

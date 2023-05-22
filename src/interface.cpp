@@ -236,7 +236,7 @@ void CalcFrame::input_mode (double x)
     auto is_negative = (x < 0);
     auto num = std::to_string (x);
     auto n_symbs = std::min (std::size_t{4},
-                             num.find ('.') + calc_.get_comma_flag() + calc_.get_digits_after_comma());
+                             num.find ('.') + calc_.get_comma_flag() + calc_.get_digits_after_comma()) - is_negative;
 
     for (auto rit = std::next (digits_.rbegin(), 3), 
               rend = std::prev(digits_.rend()); rit != rend; ++rit)
@@ -308,15 +308,6 @@ void CalcFrame::print_cmds ()
                    [&mem, i](auto &&cmd) mutable { cmd.second->ChangeValue (std::to_string (mem.get_cmd(i))); i++;});
 }
 
-void CalcFrame::print_exceptions ()
-{
-    if (calc_.get_overflow_flag() || calc_.get_exception_flag())
-        digits_[0]->ChangeValue ("0");
-    
-    if (calc_.get_underflow_flag())
-        digits_[1]->ChangeValue ("0");
-}
-
 void CalcFrame::click (wxCommandEvent &event)
 {
     if (power_on_ == false)
@@ -325,12 +316,25 @@ void CalcFrame::click (wxCommandEvent &event)
     auto ID = event.GetId ();
     calc_.handle_button (static_cast<Button_ID>(ID));
 
-    print_number();
+    if (calc_.get_exception_flag() || calc_.get_overflow_flag())
+    {
+        calc_.reset();
+
+        digits_[0]->ChangeValue ("0");
+        for (auto i = 1; i != digits_.size(); ++i)
+            digits_[i]->ChangeValue ("");
+    }
+    else
+    {
+        print_number();
+
+        if (calc_.get_underflow_flag())
+            digits_[1]->ChangeValue ("0");
+    }
+
     print_regs();
     print_cmds();
     cursor_set(calc_.get_memory().get_step_ptr());
-
-    print_exceptions();
     
     #if 0
     cursor_set (ID - 1000);
